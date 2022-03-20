@@ -1,7 +1,14 @@
+import { Post } from "components/Post";
+
 export default function Home() {
     return (
         <>
-            <h1>Hello</h1>
+            <Post
+                title="Hello There"
+                username="Testuser"
+                upvotes={1000}
+                content="This is a testing test"
+            />
         </>
     );
 }
