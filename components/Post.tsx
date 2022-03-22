@@ -1,4 +1,5 @@
 import { FaArrowDown, FaArrowUp } from "react-icons/fa";
+import Link from "next/link";
 
 interface PostProps {
     title: string;
@@ -17,7 +18,7 @@ export const Post: React.FC<PostProps> = ({ title, username, upvotes, content })
             </div>
             <div>
                 <p className="text-2xl">{title}</p>
-                <p>u/{username}</p>
+                <Link href={`u/${username}`}>{`u/${username}`}</Link>
             </div>
         </div>
     );
