@@ -1,14 +1,8 @@
 import { FaArrowDown, FaArrowUp } from "react-icons/fa";
 import Link from "next/link";
+import { IPost } from "lib/types";
 
-interface PostProps {
-    title: string;
-    username: string;
-    upvotes: number;
-    content: string;
-}
-
-export const Post: React.FC<PostProps> = ({ title, username, upvotes, content }) => {
+export const Post: React.FC<IPost> = ({ title, username, upvotes, content }) => {
     return (
         <div className="flex">
             <div className="mr-4">
