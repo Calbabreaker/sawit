@@ -2,6 +2,11 @@
 
 Online posting thingy
 
+## Setup
+
+Create a firebase project and wep app at: https://console.firebase.google.com/.
+Then create a firestore database and add the rules to the databse: [firebase.rules](./firebase.rules)
+
 ## Developing
 
 First install dependencies:

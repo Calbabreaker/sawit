@@ -13,7 +13,7 @@ export const NavBar: React.FC = () => {
                 </Link>
                 <div className="my-auto flex">
                     {user ? (
-                        <div>{user.email}</div>
+                        <div>{user.name}</div>
                     ) : (
                         <Link href="/login">
                             <button>Login</button>

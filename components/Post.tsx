@@ -1,8 +1,8 @@
 import { FaArrowDown, FaArrowUp } from "react-icons/fa";
 import Link from "next/link";
-import { IPost } from "lib/types";
+import { PostData } from "lib/types";
 
-export const Post: React.FC<IPost> = ({ title, username, upvotes, content }) => {
+export const Post: React.FC<PostData> = ({ title, username, upvotes, content }) => {
     return (
         <div className="flex">
             <div className="mr-4">
@@ -12,7 +12,7 @@ export const Post: React.FC<IPost> = ({ title, username, upvotes, content }) => 
             </div>
             <div>
                 <p className="text-2xl">{title}</p>
-                <Link href={`u/${username}`}>{`u/${username}`}</Link>
+                Posted by <Link href={`/u/${username}`}>{username}</Link>
             </div>
         </div>
     );

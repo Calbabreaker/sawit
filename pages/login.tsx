@@ -7,7 +7,7 @@ export default function Login() {
     const user = useContext(UserContext);
 
     useEffect(() => {
-        Router.push("/");
+        if (user) Router.push("/");
     }, [user]);
 
     function signIn(provider: AuthProvider) {
