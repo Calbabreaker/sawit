@@ -2,7 +2,29 @@ rules_version = '2';
 service cloud.firestore {
     match /databases/{database}/documents {
         match /{document=**} {
-            allow read, write: if true;
+            match /posts/{postID} {
+                allow read;
+            }
+
+            match /users/{userID} {
+                allow read;
+                allow create: if isValidUserData(userID);
+            }
+        }
+
+        function isValidUserData(userId) {
+            let isOwner = request.auth.uid == userId;
+            let username = request.resource.data.name;
+
+            return isOwner && isValidUsername(username);  
+        }
+
+        function isValidUsername(value) {
+            let username = value.lower();
+            let isValidLength = username.size() >= 3 && username.size() <= 16;
+            let hasValidChars = !username.matches('[^\\w-]');
+
+            return isValidLength && hasValidChars;
         }
     }
 }

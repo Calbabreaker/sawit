@@ -1,14 +1,15 @@
-import { googleProvider, auth, UserContext } from "lib/firebase";
-import { AuthProvider, signInWithPopup } from "firebase/auth";
+import { googleProvider, auth } from "lib/firebase";
+import { UserContext } from "lib/context";
+import { AuthProvider, signInWithPopup, signInAnonymously } from "firebase/auth";
 import { useContext, useEffect } from "react";
 import Router from "next/router";
 
 export default function Login() {
-    const user = useContext(UserContext);
+    const { username } = useContext(UserContext);
 
     useEffect(() => {
-        if (user) Router.push("/");
-    }, [user]);
+        if (username) Router.push("/");
+    }, [username]);
 
     function signIn(provider: AuthProvider) {
         signInWithPopup(auth, provider).catch(console.error);
@@ -20,6 +21,10 @@ export default function Login() {
                 <h1 className="text-3xl mb-8">Log into your account</h1>
                 <button className="btn" onClick={() => signIn(googleProvider)}>
                     Log in with Google
+                </button>
+                {/* for testing only */}
+                <button className="btn" onClick={() => signInAnonymously(auth)}>
+                    Log in Anonymously
                 </button>
             </div>
         </div>

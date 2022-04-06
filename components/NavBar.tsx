@@ -1,9 +1,11 @@
-import { UserContext } from "lib/firebase";
+import { UserContext } from "lib/context";
 import Link from "next/link";
 import { useContext } from "react";
+import { signOut } from "firebase/auth";
+import { auth } from "lib/firebase";
 
 export const NavBar: React.FC = () => {
-    const user = useContext(UserContext);
+    const { username } = useContext(UserContext);
 
     return (
         <nav className="bg-white shadow sticky top-0 w-full">
@@ -12,11 +14,19 @@ export const NavBar: React.FC = () => {
                     <a className="text-xl font-bold my-auto">Sawit</a>
                 </Link>
                 <div className="my-auto flex">
-                    {user ? (
-                        <div>{user.name}</div>
+                    {username ? (
+                        <>
+                            <Link href={`/u/${username}`}>
+                                <a className="hover:underline">{username}</a>
+                            </Link>
+                            <span className="mx-1">|</span>
+                            <button className="hover:underline" onClick={() => signOut(auth)}>
+                                Logout
+                            </button>
+                        </>
                     ) : (
                         <Link href="/login">
-                            <button>Login</button>
+                            <button className="hover:underline">Login</button>
                         </Link>
                     )}
                 </div>

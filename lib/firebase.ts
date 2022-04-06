@@ -1,7 +1,6 @@
 import { initializeApp, getApps } from "firebase/app";
-import { getAuth, GoogleAuthProvider, GithubAuthProvider, User } from "firebase/auth";
-import { getFirestore } from "firebase/firestore";
-import { createContext } from "react";
+import { getAuth, GoogleAuthProvider, GithubAuthProvider } from "firebase/auth";
+import { getFirestore, query, collection, where, getDocs } from "firebase/firestore";
 
 // don't initialize if already did (from hot reloading)
 if (getApps().length === 0) {
@@ -16,9 +15,19 @@ if (getApps().length === 0) {
 }
 
 export const auth = getAuth();
-export const db = getFirestore();
+export const database = getFirestore();
 
 export const googleProvider = new GoogleAuthProvider();
 export const githubProvider = new GithubAuthProvider();
 
-export const UserContext = createContext<User>(undefined);
+/**
+ * Get user doc at users/{userID} by the username.
+ *
+ * @param username - The username of the user
+ * @returns The user doc.
+ */
+export async function getUserByName(username: string) {
+    const q = query(collection(database, "users"), where("name", "==", username));
+    const snapshot = await getDocs(q);
+    return snapshot.docs[0];
+}

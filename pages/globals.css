@@ -15,4 +15,8 @@
     .btn-big {
         @apply px-4 py-3 text-lg;
     }
+
+    .btn-small {
+        @apply px-2 py-1 text-xs;
+    }
 }
