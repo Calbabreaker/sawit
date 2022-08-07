@@ -2,7 +2,7 @@ export interface PostData {
     content: string;
     title: string;
     upvotes: number;
-    userID: string;
+    username: string;
     createdAt: number;
 }
 
