@@ -2,16 +2,19 @@ import { initializeApp, getApps } from "firebase/app";
 import { getAuth, GoogleAuthProvider, GithubAuthProvider } from "firebase/auth";
 import { getFirestore, query, collection, where, getDocs } from "firebase/firestore";
 
-// don't initialize if already did (from hot reloading)
+// Put your own firebase project config here
+const FIREBASE_CONFIG = {
+    apiKey: "AIzaSyB6K1CvQAIP_l_H6jqzY4_HzDwfpFxY0N0",
+    authDomain: "sawit-692ca.firebaseapp.com",
+    projectId: "sawit-692ca",
+    storageBucket: "sawit-692ca.appspot.com",
+    messagingSenderId: "576475445650",
+    appId: "1:576475445650:web:65f0506c59981f80bea94b",
+};
+
+// Don't initialize if already did (from hot reloading)
 if (getApps().length === 0) {
-    initializeApp({
-        apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-        authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-        projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-        storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-        messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-        appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
-    });
+    initializeApp(FIREBASE_CONFIG);
 }
 
 export const auth = getAuth();
@@ -27,7 +30,7 @@ export const githubProvider = new GithubAuthProvider();
  * @returns The user doc.
  */
 export async function getUserByName(username: string) {
-    const q = query(collection(database, "users"), where("name", "==", username));
+    const q = query(collection(getFirestore(), "users"), where("name", "==", username));
     const snapshot = await getDocs(q);
     return snapshot.docs[0];
 }

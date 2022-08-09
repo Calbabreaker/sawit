@@ -2,17 +2,28 @@ import { googleProvider, auth } from "lib/firebase";
 import { UserContext } from "lib/context";
 import { AuthProvider, signInWithPopup, signInAnonymously } from "firebase/auth";
 import { useContext, useEffect } from "react";
-import Router from "next/router";
+import { GetServerSideProps } from "next";
+
+export const getServerSideProps: GetServerSideProps = async ({ req }) => {
+    if ((req as any).user) {
+        return {
+            redirect: {
+                permanent: false,
+                destination: "/",
+            },
+        };
+    } else {
+        return { props: {} };
+    }
+};
 
 export default function Login() {
-    const { username } = useContext(UserContext);
-
-    useEffect(() => {
-        if (username) Router.push("/");
-    }, [username]);
+    function redirect() {
+        location.href = "/";
+    }
 
     function signIn(provider: AuthProvider) {
-        signInWithPopup(auth, provider).catch(console.error);
+        signInWithPopup(auth, provider).then(redirect).catch(console.error);
     }
 
     return (
@@ -23,7 +34,7 @@ export default function Login() {
                     Log in with Google
                 </button>
                 {/* for testing only */}
-                <button className="btn" onClick={() => signInAnonymously(auth)}>
+                <button className="btn" onClick={() => signInAnonymously(auth).then(redirect)}>
                     Log in Anonymously
                 </button>
             </div>

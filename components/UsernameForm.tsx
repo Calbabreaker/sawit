@@ -4,8 +4,12 @@ import { database, getUserByName } from "lib/firebase";
 import { UserData } from "lib/types";
 import { FormEvent, useContext, useState } from "react";
 
-export const UsernameForm: React.FC = () => {
-    const { setUsername, user } = useContext(UserContext);
+interface Props {
+    setUsername: (name: string) => void;
+}
+
+export const UsernameForm: React.FC<Props> = ({ setUsername }) => {
+    const { uid } = useContext(UserContext);
     const [inputValue, setInputValue] = useState("");
 
     async function onSubmit(event: FormEvent<HTMLFormElement>) {
@@ -19,7 +23,7 @@ export const UsernameForm: React.FC = () => {
             return alert("Username has already been used.");
         }
 
-        const ref = doc(database, "users", user.uid);
+        const ref = doc(database, "users", uid);
         await setDoc(ref, { name: inputValue, createdAt: Date.now(), description: "" } as UserData);
         setUsername(inputValue);
     }

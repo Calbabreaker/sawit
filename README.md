@@ -15,15 +15,17 @@ First install dependencies:
 pnpm install
 ```
 
-Create firebase project and wep app then add the config to `.env.local`:
+Create firebase project and a wep app and enable the Google auth provider. Then
+click on the setting icons then `Project Settings`. Scroll to the bottom to
+find the sdk config and put that in `lib/firebase.ts`. Then go to the
+`Service Account` tab and download the private config json file. Create a file
+named `.env.local` in the project directory with these contents using the
+coresspending values from the json file.
 
 ```
-NEXT_PUBLIC_FIREBASE_API_KEY=
-NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=
-NEXT_PUBLIC_FIREBASE_PROJECT_ID=
-NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=
-NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=
-NEXT_PUBLIC_FIREBASE_APP_ID=
+PRIVATE_KEY=
+CLIENT_EMAIL=
+PROJECT_ID=
 ```
 
 Then start dev server:
