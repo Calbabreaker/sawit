@@ -1,7 +1,5 @@
 import { googleProvider, auth } from "lib/firebase";
-import { UserContext } from "lib/context";
 import { AuthProvider, signInWithPopup, signInAnonymously } from "firebase/auth";
-import { useContext, useEffect } from "react";
 import { GetServerSideProps } from "next";
 
 export const getServerSideProps: GetServerSideProps = async ({ req }) => {

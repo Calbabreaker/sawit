@@ -1,7 +1,7 @@
 import { Post } from "components/Post";
 import { GetServerSideProps } from "next/types";
 import { query, orderBy, collection, limitToLast, getDocs } from "firebase/firestore";
-import { database } from "lib/firebase";
+import { database, snapshotToJSON } from "lib/firebase";
 import { PostData } from "lib/types";
 
 interface Props {
@@ -13,7 +13,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async () => {
         query(collection(database, "posts"), orderBy("upvotes"), limitToLast(10))
     );
 
-    const posts = snapshot.docs.map((doc) => doc.data() as PostData);
+    const posts = snapshot.docs.map(snapshotToJSON) as PostData[];
     return {
         props: { posts },
     };

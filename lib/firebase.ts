@@ -1,6 +1,7 @@
 import { initializeApp, getApps } from "firebase/app";
 import { getAuth, GoogleAuthProvider, GithubAuthProvider } from "firebase/auth";
-import { getFirestore, query, collection, where, getDocs } from "firebase/firestore";
+import { getFirestore, Timestamp, DocumentSnapshot } from "firebase/firestore";
+import { DataType } from "./types";
 
 // Put your own firebase project config here
 const FIREBASE_CONFIG = {
@@ -23,14 +24,11 @@ export const database = getFirestore();
 export const googleProvider = new GoogleAuthProvider();
 export const githubProvider = new GithubAuthProvider();
 
-/**
- * Get user doc at users/{userID} by the username.
- *
- * @param username - The username of the user
- * @returns The user doc.
- */
-export async function getUserByName(username: string) {
-    const q = query(collection(getFirestore(), "users"), where("name", "==", username));
-    const snapshot = await getDocs(q);
-    return snapshot.docs[0];
+export function snapshotToJSON<T extends DataType>(snapshot: DocumentSnapshot): T {
+    const data = snapshot.data() as T & { createdAt: Timestamp };
+    return {
+        ...data,
+        id: snapshot.id,
+        createdAt: data.createdAt.toMillis(),
+    };
 }
