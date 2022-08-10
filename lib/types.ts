@@ -9,10 +9,10 @@ export interface PostData extends DataType {
     upvotes: number;
     username: string;
     thread: string;
+    uid: string;
 }
 
 export interface ThreadData extends DataType {
-    name: string;
     description: string;
 }
 

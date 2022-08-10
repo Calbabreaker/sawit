@@ -10,6 +10,7 @@ import App from "next/app";
 import { Popup } from "components/Popup";
 import { UsernameForm } from "components/UsernameForm";
 import { ValidateResponse } from "./api/validate";
+import { useRouter } from "next/router";
 
 interface Props extends AppProps {
     userCtxIntial?: IUserContext;
@@ -40,13 +41,20 @@ function MyApp({ Component, pageProps, userCtxIntial }: Props) {
         setOpen(false);
     }
 
+    const router = useRouter();
+    const { username, thread } = router.query;
+    let location = "";
+    if (thread) location = `t/${thread}`;
+    else if (username) location = `u/${username}`;
+    else if (router.pathname === "/") location = "Home";
+
     return (
         <UserContext.Provider value={userCtx}>
             <Popup open={open}>
                 <UsernameForm setUsername={setUsername} />
             </Popup>
-            <NavBar />
-            <main className="m-4">
+            <NavBar location={location} />
+            <main className="p-4">
                 <Component {...pageProps} />
             </main>
         </UserContext.Provider>

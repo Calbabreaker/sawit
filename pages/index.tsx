@@ -3,6 +3,7 @@ import { GetServerSideProps } from "next/types";
 import { query, orderBy, collection, limitToLast, getDocs } from "firebase/firestore";
 import { database, snapshotToJSON } from "lib/firebase";
 import { PostData } from "lib/types";
+import { MetaTags } from "components/MetaTags";
 
 interface Props {
     posts: PostData[];
@@ -10,7 +11,7 @@ interface Props {
 
 export const getServerSideProps: GetServerSideProps<Props> = async () => {
     const snapshot = await getDocs(
-        query(collection(database, "posts"), orderBy("upvotes"), limitToLast(10))
+        query(collection(database, "posts"), orderBy("upvotes", "desc"), limitToLast(10))
     );
 
     const posts = snapshot.docs.map(snapshotToJSON) as PostData[];
@@ -20,6 +21,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async () => {
 export default function Home({ posts }: Props) {
     return (
         <>
+            <MetaTags title="Sawit Home" description="Get the best posts on our site" />
             {posts.map((post, i) => (
                 <Post key={i} {...post}></Post>
             ))}

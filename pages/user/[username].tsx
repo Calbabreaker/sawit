@@ -1,3 +1,4 @@
+import { MetaTags } from "components/MetaTags";
 import { Post } from "components/Post";
 import { getDocs, query, collection, orderBy, limitToLast, where } from "firebase/firestore";
 import { database, getDocByName, snapshotToJSON } from "lib/firebase";
@@ -10,17 +11,17 @@ interface Props {
 }
 
 export const getServerSideProps: GetServerSideProps<Props> = async ({ params }) => {
-    const { name } = params;
+    const { username } = params;
 
-    const userSnapshot = await getDocByName("users", name);
+    const userSnapshot = await getDocByName("users", username);
     if (!userSnapshot) return { notFound: true };
     const user = snapshotToJSON(userSnapshot) as UserData;
 
     const postSnapshot = await getDocs(
         query(
             collection(database, "posts"),
-            where("username", "==", name),
-            orderBy("upvotes"),
+            where("username", "==", username),
+            orderBy("upvotes", "desc"),
             limitToLast(10)
         )
     );
@@ -32,6 +33,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ params }) 
 export default function Thread({ posts, user }: Props) {
     return (
         <>
+            <MetaTags title={user.name} description={user.description} />
             <h1 className="text-2xl">User {user.name}</h1>
             <p className="mb-4">{user.description}</p>
             {posts.map((post, i) => (

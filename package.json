@@ -16,7 +16,9 @@
         "next": "^12.2.4",
         "nookies": "^2.5.2",
         "react": "^18.0.2",
-        "react-dom": "^18.0.2"
+        "react-dom": "^18.0.2",
+        "react-hook-form": "^7.34.0",
+        "xss": "^1.0.13"
     },
     "devDependencies": {
         "@firebase/app-types": "^0.7.0",

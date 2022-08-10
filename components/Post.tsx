@@ -5,10 +5,10 @@ import { PostData } from "lib/types";
 
 export const Post: React.FC<PostData> = ({ title, username, upvotes, thread, id }) => {
     return (
-        <div className="flex">
-            <div className="mr-4">
+        <div className="flex mb-4">
+            <div className="w-8 -ml-2 mr-2">
                 <FontAwesomeIcon icon={faArrowUp} className="block mx-auto text-sm" />
-                <span className="text-lg">{upvotes}</span>
+                <div className="text-center mx-auto">{upvotes}</div>
                 <FontAwesomeIcon icon={faArrowDown} className="block mx-auto text-sm" />
             </div>
             <div>

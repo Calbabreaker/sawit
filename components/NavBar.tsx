@@ -4,15 +4,22 @@ import { useContext } from "react";
 import { signOut } from "firebase/auth";
 import { auth } from "lib/firebase";
 
-export const NavBar: React.FC = () => {
+interface Props {
+    location: string;
+}
+
+export const NavBar: React.FC<Props> = ({ location }) => {
     const user = useContext(UserContext);
 
     return (
         <nav className="bg-white shadow sticky top-0 w-full">
             <div className="px-4 py-2 mx-auto flex justify-between">
-                <Link href="/">
-                    <a className="text-xl font-bold my-auto">Sawit</a>
-                </Link>
+                <div>
+                    <Link href="/">
+                        <a className="text-xl font-bold my-auto">Sawit</a>
+                    </Link>
+                    <span className="mx-4">{location}</span>
+                </div>
                 <div className="my-auto flex">
                     {user?.username ? (
                         <>

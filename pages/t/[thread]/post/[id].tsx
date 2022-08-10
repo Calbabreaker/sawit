@@ -1,3 +1,4 @@
+import { MetaTags } from "components/MetaTags";
 import { Post } from "components/Post";
 import { getDocs, collection, limit, query, where, documentId } from "firebase/firestore";
 import { database, snapshotToJSON } from "lib/firebase";
@@ -9,24 +10,27 @@ interface Props {
 }
 
 export const getServerSideProps: GetServerSideProps<Props> = async ({ params }) => {
-    const { id, name } = params;
+    const { id, thread } = params;
     const snapshot = await getDocs(
         query(
             collection(database, "posts"),
             where(documentId(), "==", id),
-            where("thread", "==", name),
+            where("thread", "==", thread),
             limit(1)
         )
     );
 
+    if (!snapshot.docs[0]) return { notFound: true };
+
     const post = snapshotToJSON(snapshot.docs[0]) as PostData;
-    if (!post) {
-        return { notFound: true };
-    } else {
-        return { props: { post } };
-    }
+    return { props: { post } };
 };
 
 export default function PostPage({ post }: Props) {
-    return <Post {...post}></Post>;
+    return (
+        <>
+            <MetaTags title={post.title} description={post.content} />
+            <Post {...post}></Post>
+        </>
+    );
 }
