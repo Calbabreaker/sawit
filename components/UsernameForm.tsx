@@ -1,6 +1,6 @@
 import { doc, setDoc } from "firebase/firestore";
 import { UserContext } from "lib/context";
-import { database, getUserByName } from "lib/firebase";
+import { database, getDocByName } from "lib/firebase";
 import { UserData } from "lib/types";
 import { FormEvent, useContext, useState } from "react";
 
@@ -19,7 +19,7 @@ export const UsernameForm: React.FC<Props> = ({ setUsername }) => {
             return alert("Username can only contain letters, numbers, '-' and '_'");
         } else if (inputValue.length < 3 || inputValue.length > 16) {
             return alert("Username must be between 3 and 16 characters");
-        } else if (await getUserByName(inputValue)) {
+        } else if (await getDocByName("users", inputValue)) {
             return alert("Username has already been used.");
         }
 

@@ -14,9 +14,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async () => {
     );
 
     const posts = snapshot.docs.map(snapshotToJSON) as PostData[];
-    return {
-        props: { posts },
-    };
+    return { props: { posts } };
 };
 
 export default function Home({ posts }: Props) {

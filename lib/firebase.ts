@@ -1,10 +1,19 @@
 import { initializeApp, getApps } from "firebase/app";
 import { getAuth, GoogleAuthProvider, GithubAuthProvider } from "firebase/auth";
-import { getFirestore, Timestamp, DocumentSnapshot } from "firebase/firestore";
+import {
+    getFirestore,
+    Timestamp,
+    DocumentSnapshot,
+    query,
+    collection,
+    where,
+    getDocs,
+    limit,
+} from "firebase/firestore";
 import { DataType } from "./types";
 
 // Put your own firebase project config here
-const FIREBASE_CONFIG = {
+export const FIREBASE_CONFIG = {
     apiKey: "AIzaSyB6K1CvQAIP_l_H6jqzY4_HzDwfpFxY0N0",
     authDomain: "sawit-692ca.firebaseapp.com",
     projectId: "sawit-692ca",
@@ -31,4 +40,14 @@ export function snapshotToJSON<T extends DataType>(snapshot: DocumentSnapshot): 
         id: snapshot.id,
         createdAt: data.createdAt.toMillis(),
     };
+}
+
+export async function getDocByName(
+    collectionName: string,
+    name: string | string[]
+): Promise<DocumentSnapshot> {
+    const snapshot = await getDocs(
+        query(collection(database, collectionName), where("name", "==", name), limit(1))
+    );
+    return snapshot.docs[0];
 }

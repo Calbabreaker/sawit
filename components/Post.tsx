@@ -12,12 +12,18 @@ export const Post: React.FC<PostData> = ({ title, username, upvotes, thread, id 
                 <FontAwesomeIcon icon={faArrowDown} className="block mx-auto text-sm" />
             </div>
             <div>
-                <Link href={`/t/${thread}/post/${id}`}>
-                    <a className="hover:underline text-2xl block">{title}</a>
-                </Link>
+                <div>
+                    <Link href={`/t/${thread}/post/${id}`}>
+                        <a className="hover:underline text-2xl">{title}</a>
+                    </Link>
+                </div>
                 Posted by
                 <Link href={`/user/${username}`}>
-                    <a className="hover:underline mx-1">{username}</a>
+                    <a className="hover:underline mx-1 text-blue-600">{username}</a>
+                </Link>
+                in
+                <Link href={`/t/${thread}`}>
+                    <a className="hover:underline mx-1 text-blue-600">t/{thread}</a>
                 </Link>
             </div>
         </div>

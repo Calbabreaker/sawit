@@ -1,7 +1,7 @@
 import { NavBar } from "components/NavBar";
 import "./globals.css";
 import { IUserContext, UserContext } from "lib/context";
-import { onIdTokenChanged } from "firebase/auth";
+import { onAuthStateChanged } from "firebase/auth";
 import { destroyCookie, setCookie, parseCookies } from "nookies";
 import { useEffect, useState } from "react";
 import { auth } from "lib/firebase";
@@ -9,8 +9,7 @@ import type { AppContext, AppProps } from "next/app";
 import App from "next/app";
 import { Popup } from "components/Popup";
 import { UsernameForm } from "components/UsernameForm";
-
-const cookieName = "firebaseToken";
+import { ValidateResponse } from "./api/validate";
 
 interface Props extends AppProps {
     userCtxIntial?: IUserContext;
@@ -20,23 +19,15 @@ function MyApp({ Component, pageProps, userCtxIntial }: Props) {
     const [userCtx, setUserCtx] = useState(userCtxIntial);
 
     useEffect(() => {
-        return onIdTokenChanged(auth, async (user) => {
+        return onAuthStateChanged(auth, async (user) => {
             if (user) {
-                const token = await user.getIdToken();
-                setCookie(null, cookieName, token, { path: "/" });
+                setCookie(null, "refreshToken", user.refreshToken, { path: "/" });
             } else {
-                destroyCookie(null, cookieName);
+                destroyCookie(null, "userToken");
+                destroyCookie(null, "refreshToken");
                 setUserCtx(null);
             }
         });
-    }, []);
-
-    // Force the token to refresh every 10 minutes otherwise it will expire
-    useEffect(() => {
-        const handle = setInterval(async () => {
-            if (auth.currentUser) await auth.currentUser.getIdToken(true);
-        }, 10 * 60 * 1000);
-        return () => clearInterval(handle);
     }, []);
 
     const [open, setOpen] = useState(false);
@@ -65,20 +56,25 @@ function MyApp({ Component, pageProps, userCtxIntial }: Props) {
 MyApp.getInitialProps = async (context: AppContext) => {
     const appProps = await App.getInitialProps(context);
 
-    // Only run on server when initial website load
+    // Only run on server when initial app load
     if (typeof window == "undefined") {
         const { req } = context.ctx;
         const protocol = req.headers["x-forwarded-proto"] ?? "http";
         const baseUrl = `${protocol}://${req.headers.host}`;
 
-        const cookies = parseCookies(context.ctx);
-        if (cookies[cookieName]) {
+        const { userToken, refreshToken } = parseCookies(context.ctx);
+        if (refreshToken) {
             try {
                 // Have to fetch next js api route since can't acess Admin SDK here
-                const res = await fetch(`${baseUrl}/api/validate?token=${cookies[cookieName]}`);
-                const userCtxIntial = await res.json();
-                (req as any).user = userCtxIntial; // Pass user to getServerSideProps and stuff
-                return { userCtxIntial, ...appProps } as Props;
+                const path = `${baseUrl}/api/validate?userToken=${userToken}&refreshToken=${refreshToken}`;
+                const res = await fetch(path);
+                const data = (await res.json()) as ValidateResponse;
+
+                // Set the cookie when the server decides it needs to be refreshed
+                if (data.token) setCookie(context.ctx, "userToken", data.token);
+
+                (req as any).user = data; // Pass user to getServerSideProps and stuff
+                return { userCtxIntial: data, ...appProps } as Props;
             } catch (err) {}
         }
     }
