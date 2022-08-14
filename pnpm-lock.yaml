@@ -12,6 +12,7 @@ specifiers:
   firebase-admin: ^11.0.1
   next: ^12.2.4
   nookies: ^2.5.2
+  nprogress: ^0.2.0
   postcss: ^8.4.16
   react: ^18.0.2
   react-dom: ^18.0.2
@@ -28,6 +29,7 @@ dependencies:
   firebase-admin: 11.0.1_@firebase+app-types@0.7.0
   next: 12.2.4_biqbaboplfbrettd7655fr4n2y
   nookies: 2.5.2
+  nprogress: 0.2.0
   react: 18.2.0
   react-dom: 18.2.0_react@18.2.0
   react-hook-form: 7.34.0_react@18.2.0
@@ -1977,6 +1979,10 @@ packages:
     resolution: {integrity: sha512-bdok/XvKII3nUpklnV6P2hxtMNrCboOjAcyBuQnWEhO665FwrSNRxU+AqpsyvO6LgGYPspN+lu5CLtw4jPRKNA==}
     engines: {node: '>=0.10.0'}
     dev: true
+
+  /nprogress/0.2.0:
+    resolution: {integrity: sha512-I19aIingLgR1fmhftnbWWO3dXc0hSxqHQHQb3H8m+K3TnEn/iSeTZZOyvKXWqQESMwuUVnatlCnZdLBZZt2VSA==}
+    dev: false
 
   /object-assign/4.1.1:
     resolution: {integrity: sha512-rJgTQnkUnH1sFw8yT6VSU3zD3sWmu6sZhIseY8VX+GRu3P6F7Fu+JNDoXfklElbLJSnc3FUQHVe4cU5hj+BcUg==}

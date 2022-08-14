@@ -23,7 +23,7 @@ export default function Create({ thread }: Props) {
     return (
         <>
             <MetaTags title={`Create post in t/${thread.id}`} />
-            <h1 className="text-2xl">Create a post in t/{thread.id}</h1>
+            <h1 className="text-2xl mb-4">Create a post in t/{thread.id}</h1>
             <CreatePost thread={thread.id} />
         </>
     );

@@ -12,7 +12,7 @@ export const NavBar: React.FC<Props> = ({ location }) => {
     const user = useContext(UserContext);
 
     return (
-        <nav className="bg-white shadow sticky top-0 w-full">
+        <nav className="bg-white shadow sticky top-0 w-full z-10">
             <div className="px-4 py-2 mx-auto flex justify-between">
                 <div>
                     <Link href="/">
