@@ -9,7 +9,16 @@ interface Props {
     thread: ThreadData;
 }
 
-export const getServerSideProps: GetServerSideProps<Props> = async ({ params }) => {
+export const getServerSideProps: GetServerSideProps<Props> = async ({ params, req }) => {
+    if (!(req as any).user) {
+        return {
+            redirect: {
+                permanent: false,
+                destination: "/login",
+            },
+        };
+    }
+
     const { thread: threadName } = params;
 
     const threadSnapshot = await getDoc(doc(database, `/threads/${threadName}`));

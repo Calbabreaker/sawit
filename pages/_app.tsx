@@ -30,8 +30,8 @@ function MyApp({ Component, pageProps, userCtxIntial }: Props) {
             if (user) {
                 setCookie(null, "refreshToken", user.refreshToken, { path: "/" });
             } else {
-                destroyCookie(null, "userToken");
-                destroyCookie(null, "refreshToken");
+                destroyCookie(null, "userToken", { path: "/" });
+                destroyCookie(null, "refreshToken", { path: "/" });
                 setUserCtx(null);
             }
         });
