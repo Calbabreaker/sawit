@@ -1,11 +1,23 @@
 # Sawit
 
-Online posting thingy
+Online posting web app
 
 ## Setup
 
-Create a firebase project and wep app at: https://console.firebase.google.com/.
-Then create a firestore database and add the rules to the databse: [firebase.rules](./firebase.rules)
+Create firebase project at https://console.firebase.google.com/ and a wep app
+and enable the Google auth provider. Then go the Firestore database section
+then to rules and paste the [firebase.rules](./firebase.rules) file into there.
+Then click on the setting icons then `Project Settings`. Scroll to the bottom
+to find the sdk config and put that in [lib/firebase.ts](./lib/firebase.ts).
+Then go to the `Service Account` tab and download the private config json file.
+Create a file named `.env.local` in the project directory with these contents
+using the corresponding values from the json file.
+
+```
+PRIVATE_KEY=
+CLIENT_EMAIL=
+PROJECT_ID=
+```
 
 ## Developing
 
@@ -15,21 +27,7 @@ First install dependencies:
 pnpm install
 ```
 
-Create firebase project and a wep app and enable the Google auth provider. Then
-go the Firestore Database section then to rules and copy the `firebase.rules`
-file into there. Then click on the setting icons then `Project Settings`.
-Scroll to the bottom to find the sdk config and put that in `lib/firebase.ts`.
-Then go to the `Service Account` tab and download the private config json file.
-Create a file named `.env.local` in the project directory with these contents
-using the coresspending values from the json file.
-
-```
-PRIVATE_KEY=
-CLIENT_EMAIL=
-PROJECT_ID=
-```
-
-Then start dev server:
+Then start the dev server:
 
 ```sh
 pnpm dev
