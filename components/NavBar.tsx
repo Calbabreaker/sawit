@@ -3,6 +3,7 @@ import Link from "next/link";
 import { useContext } from "react";
 import { signOut } from "firebase/auth";
 import { auth } from "lib/firebase";
+import Router from "next/router";
 
 interface Props {
     location: string;
@@ -32,8 +33,8 @@ export const NavBar: React.FC<Props> = ({ location }) => {
                             </button>
                         </>
                     ) : (
-                        <Link href="/login">
-                            <button className="hover:underline">Login</button>
+                        <Link href={`/login/?return=${Router.asPath}`}>
+                            <a className="hover:underline">Login</a>
                         </Link>
                     )}
                 </div>

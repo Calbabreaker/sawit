@@ -15,27 +15,24 @@ interface Props {
 export const VoteCounter: React.FC<Props> = ({ upvotes: startUpvotes, thread, postID }) => {
     const [upvotes, setUpvotes] = useState(startUpvotes);
     const user = useContext(UserContext);
-    const [isVoteUp, setIsVoteUp] = useState(null);
+    const [isVoteUp, setIsVoteUp] = useState<boolean>(null);
+    const [loaded, setLoaded] = useState(false);
 
     async function checkVoteDoc() {
+        if (!user) return;
         const voteDoc = await getDoc(
             doc(database, `/threads/${thread}/posts/${postID}/votes/${user.uid}`)
         );
-
-        // If user voted before loaded
-        if (isVoteUp != null) {
-            setIsVoteUp(voteDoc.data()?.up);
-        }
+        setIsVoteUp(voteDoc.data()?.up);
     }
 
     useEffect(() => {
-        if (user) {
-            checkVoteDoc();
-        }
+        checkVoteDoc().then(() => setLoaded(true));
     }, []);
 
     async function vote(isUp: boolean) {
-        if (!user) return Router.push("/login");
+        if (!user) return Router.push(`/login/?return=${Router.asPath}`);
+        if (!loaded) return;
 
         let inc = isUp ? 1 : -1;
         const method = isUp === isVoteUp ? "DELETE" : "PUT";
@@ -67,7 +64,7 @@ export const VoteCounter: React.FC<Props> = ({ upvotes: startUpvotes, thread, po
         <>
             <FontAwesomeIcon
                 icon={faArrowUp}
-                className={`${arrowClass} ${isVoteUp != null && isVoteUp ? selectedClass : ""}`}
+                className={`${arrowClass} ${isVoteUp ? selectedClass : ""}`}
                 onClick={() => vote(true)}
             />
             <div className="text-center mx-auto">{upvotes}</div>

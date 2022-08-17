@@ -12,28 +12,28 @@ export default async function (req: NextApiRequest, res: NextApiResponse) {
 
         const batch = adminDatabase.batch();
         const postRef = adminDatabase.doc(`/threads/${thread}/posts/${postID}`);
-        const upvoteRef = postRef.collection("votes").doc(uid);
-        const upvoteDoc = (await upvoteRef.get()).data();
+        const voteRef = postRef.collection("votes").doc(uid);
+        const voteDoc = (await voteRef.get()).data();
 
         switch (req.method) {
             case "PUT":
                 const isUp = up === "1";
                 let incAmount = isUp ? 1 : -1;
-                if (upvoteDoc) {
+                if (voteDoc) {
                     // If the upvote is opposite then multiply by two else do nothing
-                    if (upvoteDoc.up === isUp) return res.status(200).end();
+                    if (voteDoc.up === isUp) return res.status(200).end();
                     else incAmount *= 2;
                 }
 
                 batch.update(postRef, { upvotes: FieldValue.increment(incAmount) });
-                batch.set(upvoteRef, { up: isUp });
+                batch.set(voteRef, { up: isUp });
                 await batch.commit();
                 res.status(200).end();
                 break;
             case "DELETE":
-                if (!upvoteDoc) throw null;
-                batch.update(postRef, { upvotes: FieldValue.increment(upvoteDoc.up ? -1 : 1) });
-                batch.delete(upvoteRef);
+                if (!voteDoc) throw null;
+                batch.update(postRef, { upvotes: FieldValue.increment(voteDoc.up ? -1 : 1) });
+                batch.delete(voteRef);
                 res.status(200).end();
                 break;
             default:

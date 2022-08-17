@@ -31,7 +31,7 @@ export default function Thread({ posts, thread }: Props) {
         <>
             <MetaTags title={`t/${thread.id}`} description={thread.description} />
             <div className="mb-8">
-                <h1 className="text-2xl">Welcome to {thread.id}!</h1>
+                <h1 className="text-2xl">Welcome to t/{thread.id}!</h1>
                 <p className="mb-4">{thread.description}</p>
                 <Link href={`${thread.id}/create`}>
                     <a className="btn btn-primary">Create Post</a>
