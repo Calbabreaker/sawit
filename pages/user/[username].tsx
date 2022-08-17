@@ -1,5 +1,5 @@
 import { MetaTags } from "components/MetaTags";
-import { Post } from "components/Post";
+import { PostList } from "components/PostList";
 import { getDocs, query, collectionGroup, orderBy, limitToLast, where } from "firebase/firestore";
 import { database, getDocByName, snapshotToJSON } from "lib/firebase";
 import { PostData, UserData } from "lib/types";
@@ -36,9 +36,7 @@ export default function Thread({ posts, user }: Props) {
             <MetaTags title={user.name} description={user.description} />
             <h1 className="text-2xl">User {user.name}</h1>
             <p className="mb-4">{user.description}</p>
-            {posts.map((post, i) => (
-                <Post key={i} post={post} snippet={true}></Post>
-            ))}
+            <PostList posts={posts} />
         </>
     );
 }

@@ -85,7 +85,7 @@ MyApp.getInitialProps = async (context: AppContext) => {
                 const data = (await res.json()) as ValidateResponse;
 
                 // Set the cookie when the server decides it needs to be refreshed
-                if (data.token) setCookie(context.ctx, "userToken", data.token);
+                if (data.token) setCookie(context.ctx, "userToken", data.token, { path: "/" });
 
                 (req as any).user = data; // Pass user to getServerSideProps and stuff
                 return { userCtxIntial: data, ...appProps } as Props;

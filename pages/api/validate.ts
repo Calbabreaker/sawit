@@ -24,11 +24,12 @@ export interface ValidateResponse extends IUserContext {
 }
 
 async function validate(userToken: string, refreshToken: string): Promise<ValidateResponse> {
+    let newUserToken = undefined;
     const token = await adminAuth.verifyIdToken(userToken).catch(async (err) => {
         // Refresh the token if expired or invalid
         if (err.code == "auth/id-token-expired" || err.code == "auth/argument-error") {
-            userToken = await refreshUserToken(refreshToken);
-            return await adminAuth.verifyIdToken(userToken);
+            newUserToken = await refreshUserToken(refreshToken);
+            return await adminAuth.verifyIdToken(newUserToken);
         } else {
             throw err;
         }
@@ -39,6 +40,7 @@ async function validate(userToken: string, refreshToken: string): Promise<Valida
     return {
         uid: token.uid,
         username: userData?.name,
+        token: newUserToken,
     };
 }
 
@@ -50,7 +52,6 @@ export default async function (req: NextApiRequest, res: NextApiResponse) {
         const data = await validate(userToken as string, refreshToken as string);
         return res.status(200).send(data);
     } catch (err) {
-        console.error(err);
-        return res.status(400).send(null);
+        return res.status(400).end("Invalid");
     }
 }

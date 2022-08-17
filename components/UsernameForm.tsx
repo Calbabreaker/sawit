@@ -1,7 +1,6 @@
-import { doc, setDoc } from "firebase/firestore";
+import { doc, setDoc, serverTimestamp } from "firebase/firestore";
 import { UserContext } from "lib/context";
 import { database, getDocByName } from "lib/firebase";
-import { UserData } from "lib/types";
 import { FormEvent, useContext, useState } from "react";
 
 interface Props {
@@ -24,7 +23,11 @@ export const UsernameForm: React.FC<Props> = ({ setUsername }) => {
         }
 
         const ref = doc(database, "users", uid);
-        await setDoc(ref, { name: inputValue, createdAt: Date.now(), description: "" } as UserData);
+        await setDoc(ref, {
+            name: inputValue,
+            createdAt: serverTimestamp(),
+            description: "",
+        });
         setUsername(inputValue);
     }
 

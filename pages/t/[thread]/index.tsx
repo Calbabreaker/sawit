@@ -1,5 +1,5 @@
 import { MetaTags } from "components/MetaTags";
-import { Post } from "components/Post";
+import { PostList } from "components/PostList";
 import { getDocs, query, collection, orderBy, limitToLast, doc, getDoc } from "firebase/firestore";
 import { database, snapshotToJSON } from "lib/firebase";
 import { PostData, ThreadData } from "lib/types";
@@ -37,9 +37,7 @@ export default function Thread({ posts, thread }: Props) {
                     <a className="btn btn-primary">Create Post</a>
                 </Link>
             </div>
-            {posts.map((post, i) => (
-                <Post key={i} post={post} snippet={true}></Post>
-            ))}
+            <PostList posts={posts} />
         </>
     );
 }

@@ -3,6 +3,7 @@ import { Post } from "components/Post";
 import { getDoc, doc } from "firebase/firestore";
 import { database, snapshotToJSON } from "lib/firebase";
 import { PostData } from "lib/types";
+import Router from "next/router";
 import { GetServerSideProps } from "next/types";
 
 interface Props {
@@ -21,7 +22,7 @@ export default function PostPage({ post }: Props) {
     return (
         <>
             <MetaTags title={post.title} description={post.content} />
-            <Post post={post} snippet={false}></Post>
+            <Post post={post} isSnippet={false} onDelete={() => Router.push("/")}></Post>
         </>
     );
 }

@@ -1,6 +1,7 @@
 import { googleProvider, auth } from "lib/firebase";
 import { AuthProvider, signInWithPopup, signInAnonymously } from "firebase/auth";
 import { GetServerSideProps } from "next";
+import Router from "next/router";
 
 export const getServerSideProps: GetServerSideProps = async ({ req }) => {
     if ((req as any).user) {
@@ -17,7 +18,7 @@ export const getServerSideProps: GetServerSideProps = async ({ req }) => {
 
 export default function Login() {
     function redirect() {
-        location.href = "/";
+        location.href = (Router.query.return as string) || "/";
     }
 
     function signIn(provider: AuthProvider) {
