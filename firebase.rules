@@ -4,15 +4,15 @@ service cloud.firestore {
         match /threads/{threadID} {
             allow read;
 
-            match /posts/{postID} {
-                allow read;
-                allow create: if canCreatePost();
-                allow update: if isValidPost(resource.data) && hasNotChanged(["uid", "username", "upvotes", "thread"]);
-                allow delete;
+        }
 
-                match /votes/{userID} {
-                    allow read: if request.auth.uid == userID;
-                }
+        match /threads/{threadID}/posts/{postID} {
+            allow read;
+            allow create: if canCreatePost();
+            allow update: if isValidPost(resource.data) && !diffKeys().hasAny(["uid", "username", "upvotes", "thread"]) || canChangeVotes(threadID, postID);
+
+            match /votes/{userID} {
+                allow read, write: if request.auth.uid == userID;
             }
         }
 
@@ -44,8 +44,8 @@ service cloud.firestore {
             return isOwner && isValidContent && isValidTitle;
         }
 
-        function hasNotChanged(keys) {
-            return !request.resource.data.diff(resource.data).affectedKeys().hasAny(keys);
+        function diffKeys() {
+            return request.resource.data.diff(resource.data).affectedKeys();
         }
 
         function isValidUserData(userId) {
@@ -64,5 +64,19 @@ service cloud.firestore {
 
             return isValidLength && hasValidChars;
         }
+
+        function canChangeVotes(threadID, postID) {
+		    let voteDocAfter = getAfter(/databases/$(database)/documents/threads/$(threadID)/posts/$(postID)/votes/$(request.auth.uid));
+            let voteDoc = get(/databases/$(database)/documents/threads/$(threadID)/posts/$(postID)/votes/$(request.auth.uid));
+            let voteChange = request.resource.data.upvotes - resource.data.upvotes;
+            let isSingleInc = voteChange == 1 || voteChange == -1;
+
+            let voteFirstTime = !exists(/databases/$(database)/documents/threads/$(threadID)/posts/$(postID)/votes/$(request.auth.uid))&& isSingleInc && voteDocAfter.data.change == voteChange;
+            let voteDelete = voteDocAfter == null && isSingleInc && voteDoc.data.change != voteChange;
+						let voteChangeOk = voteChange == 2 || voteChange == -2 && voteDocAfter.data.change == voteChange / 2 && voteDocAfter.data.change != voteDoc.data.change;
+	
+            return diffKeys().hasOnly(["upvotes"]) && (voteFirstTime || voteDelete || voteChangeOk);
+        }
     }
 }
+
