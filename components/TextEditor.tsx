@@ -15,9 +15,7 @@ export const TextEditor: React.FC<Props> = ({ placeholder = "", className, onCha
         setShowplaceholder(value.length === 0);
     }
 
-    const afterStyle = showPlaceholder
-        ? "after:content-[attr(placeholder)] after:text-gray-400"
-        : "";
+    const afterStyle = showPlaceholder && "after:content-[attr(placeholder)] after:text-gray-400";
 
     return (
         <textarea

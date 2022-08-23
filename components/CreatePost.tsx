@@ -1,5 +1,3 @@
-import { faCheck, faSpinner } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { database } from "lib/firebase";
 import { UserContext } from "lib/context";
@@ -7,7 +5,7 @@ import Router from "next/router";
 import { useContext, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { TextEditor } from "./TextEditor";
-import { ErrorText } from "./ErrorText";
+import { FormStatus } from "./FormStatus";
 
 interface Props {
     thread: string;
@@ -24,8 +22,7 @@ export const CreatePost: React.FC<Props> = ({ thread }) => {
         mode: "onChange",
     });
 
-    const createPost = handleSubmit(async (fields) => {
-        const { title, content } = fields;
+    const createPost = handleSubmit(async ({ title, content }) => {
         const data = {
             username,
             thread,
@@ -45,8 +42,6 @@ export const CreatePost: React.FC<Props> = ({ thread }) => {
         trigger();
     }, []);
 
-    const { isValid, isSubmitted, isSubmitting, isSubmitSuccessful, errors, isDirty } = formState;
-
     return (
         <form className="bg-white p-4 shadow rounded" onSubmit={createPost}>
             <input
@@ -62,29 +57,7 @@ export const CreatePost: React.FC<Props> = ({ thread }) => {
                 placeholder="Content (optional)"
                 onChange={(text) => setValue("content", text, { shouldValidate: true })}
             />
-            <button
-                type="submit"
-                disabled={!isValid || isSubmitting || isSubmitSuccessful}
-                className="btn btn-primary mr-2"
-            >
-                Create New Post
-            </button>
-            {isSubmitting && (
-                <FontAwesomeIcon icon={faSpinner} className="text-2xl ml-1 -mb-1 fa-spin" />
-            )}
-            {isSubmitSuccessful && (
-                <FontAwesomeIcon icon={faCheck} color="#3b82f6" className="text-2xl ml-1 -mb-1" />
-            )}
-            {!isValid && (
-                <ErrorText
-                    text={Object.entries(errors)
-                        .map(([_, error]) => error.message)
-                        .join(", ")}
-                />
-            )}
-            {isSubmitted && !isDirty && !isSubmitSuccessful && (
-                <ErrorText text={"Failed to create post"} />
-            )}
+            <FormStatus formState={formState} buttonText="Create new post" />
         </form>
     );
 };

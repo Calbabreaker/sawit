@@ -9,6 +9,7 @@
     },
     "dependencies": {
         "@fortawesome/fontawesome-svg-core": "^6.1.2",
+        "@fortawesome/free-brands-svg-icons": "^6.1.2",
         "@fortawesome/free-solid-svg-icons": "^6.1.2",
         "@fortawesome/react-fontawesome": "^0.2.0",
         "@react-spring/web": "^9.5.2",
@@ -19,8 +20,7 @@
         "nprogress": "^0.2.0",
         "react": "^18.0.2",
         "react-dom": "^18.0.2",
-        "react-hook-form": "^7.34.0",
-        "xss": "^1.0.13"
+        "react-hook-form": "^7.34.0"
     },
     "devDependencies": {
         "@firebase/app-types": "^0.7.0",

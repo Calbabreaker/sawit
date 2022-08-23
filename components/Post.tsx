@@ -28,7 +28,7 @@ export const Post: React.FC<Props> = ({
 
     return (
         <div className="flex mb-2 bg-white rounded shadow border border-gray-300">
-            <div className="mr-2 bg-blue-50 p-1 rounded">
+            <div className="mr-2 bg-blue-50 rounded w-10 py-2">
                 <VoteCounter thread={thread} postID={id} upvotes={upvotes} />
             </div>
             <div className="py-2 pr-2">
@@ -53,7 +53,6 @@ export const Post: React.FC<Props> = ({
                 <Link href={`/t/${thread}/post/${id}`}>
                     <a className="hover:underline">Comments</a>
                 </Link>
-
                 {user?.username == username && (
                     <button className="btn btn-small mx-2" onClick={deletePost}>
                         Delete

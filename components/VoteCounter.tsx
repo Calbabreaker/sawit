@@ -1,6 +1,6 @@
 import { faArrowDown, faArrowUp, faSpinner } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { collection, doc, increment, getDoc, writeBatch } from "firebase/firestore";
+import { doc, getDoc } from "firebase/firestore";
 import { UserContext } from "lib/context";
 import { database } from "lib/firebase";
 import Router from "next/router";
@@ -10,6 +10,22 @@ interface Props {
     upvotes: number;
     thread: string;
     postID: string;
+}
+
+function shortenLength(n: number): string {
+    const nstr = n.toString();
+    let dp: number, unit: string;
+    if (n > 999999) {
+        dp = nstr.length - 6;
+        unit = "M";
+    } else if (n > 999) {
+        dp = nstr.length - 3;
+        unit = "k";
+    } else {
+        return nstr;
+    }
+
+    return `${nstr.substring(0, dp)}.${nstr.substring(dp, dp + 1)}${unit}`;
 }
 
 export const VoteCounter: React.FC<Props> = ({ upvotes: startUpvotes, thread, postID }) => {
@@ -57,7 +73,7 @@ export const VoteCounter: React.FC<Props> = ({ upvotes: startUpvotes, thread, po
         setLoading(false);
     }
 
-    const arrowClass = `block mx-auto text-base px-1 border border-dashed border-transparent ${
+    const arrowClass = `block mx-auto text-lg px-1 border border-dashed border-transparent ${
         !loading && "hover:border-gray-500 hover:cursor-pointer"
     }`;
     const selectedClass = "text-blue-500";
@@ -71,9 +87,9 @@ export const VoteCounter: React.FC<Props> = ({ upvotes: startUpvotes, thread, po
             />
 
             {loading ? (
-                <FontAwesomeIcon icon={faSpinner} className="text-sm px-1 fa-spin" />
+                <FontAwesomeIcon icon={faSpinner} className="text-sm px-3 fa-spin " />
             ) : (
-                <div className="text-center mx-auto">{upvotes}</div>
+                <div className="text-center text-base mx-auto">{shortenLength(upvotes)}</div>
             )}
             <FontAwesomeIcon
                 icon={faArrowDown}

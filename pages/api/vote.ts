@@ -31,14 +31,13 @@ export default async function (req: NextApiRequest, res: NextApiResponse) {
             await adminDatabase.runTransaction(async (transaction) => {
                 const voteDoc = (await transaction.get(voteRef)).data();
                 if (!voteDoc) throw null;
-                transaction.update(postRef, { upvotes: FieldValue.increment(voteDoc.change) });
+                transaction.update(postRef, { upvotes: FieldValue.increment(voteDoc.change * -1) });
                 transaction.delete(voteRef);
             });
         } else throw null;
 
         res.status(200).end();
     } catch (err) {
-        console.error(err);
         res.status(400).end(null);
     }
 }

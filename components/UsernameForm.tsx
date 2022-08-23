@@ -1,45 +1,59 @@
 import { doc, setDoc, serverTimestamp } from "firebase/firestore";
 import { UserContext } from "lib/context";
 import { database, getDocByName } from "lib/firebase";
-import { FormEvent, useContext, useState } from "react";
+import { useContext, useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { FormStatus } from "./FormStatus";
 
 interface Props {
     setUsername: (name: string) => void;
 }
 
+interface FormValues {
+    username: string;
+}
+
 export const UsernameForm: React.FC<Props> = ({ setUsername }) => {
     const { uid } = useContext(UserContext);
-    const [inputValue, setInputValue] = useState("");
 
-    async function onSubmit(event: FormEvent<HTMLFormElement>) {
-        event.preventDefault();
+    const { register, handleSubmit, formState, trigger, setError } = useForm<FormValues>({
+        mode: "onChange",
+    });
 
-        if (/[^\w-]/g.test(inputValue)) {
-            return alert("Username can only contain letters, numbers, '-' and '_'");
-        } else if (inputValue.length < 3 || inputValue.length > 16) {
-            return alert("Username must be between 3 and 16 characters");
-        } else if (await getDocByName("users", inputValue)) {
-            return alert("Username has already been used.");
+    const onSubmit = handleSubmit(async ({ username }) => {
+        if (await getDocByName("users", username)) {
+            return setError("username", { message: "Username is already taken" });
         }
-
         const ref = doc(database, "users", uid);
         await setDoc(ref, {
-            name: inputValue,
+            name: username,
             createdAt: serverTimestamp(),
             description: "",
         });
-        setUsername(inputValue);
-    }
+        setUsername(username);
+    });
+
+    useEffect(() => {
+        trigger();
+    }, []);
 
     return (
-        <form className="w-full flex justify-evenly" onSubmit={onSubmit}>
+        <form className="p-4 text-center" onSubmit={onSubmit}>
+            <h1 className="text-2xl mb-4">Set your username</h1>
             <input
-                className="w-full mr-4 p-2 border-gray-600 border rounded"
-                type="text"
+                className="w-full p-2 border-gray-600 border rounded"
                 placeholder="Username"
-                onChange={(event) => setInputValue(event.currentTarget.value)}
+                {...register("username", {
+                    required: "Username must be greater than 3 characters",
+                    minLength: { value: 3, message: "Username must be greater than 3 characters" },
+                    maxLength: { value: 24, message: "Username must be less than 24 characters" },
+                    pattern: {
+                        value: /[\w-]/g,
+                        message: "Username can only contain letters, numbers, '-' and '_'",
+                    },
+                })}
             />
-            <input className="btn btn-primary" type="submit" value="Submit" />
+            <FormStatus formState={formState} buttonText="Set username" buttonClass="w-full my-2" />
         </form>
     );
 };

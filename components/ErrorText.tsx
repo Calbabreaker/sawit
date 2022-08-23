@@ -6,10 +6,16 @@ interface Props {
 }
 
 export const ErrorText: React.FC<Props> = ({ text }) => {
-    return (
-        <div className="inline-block text-red-500">
-            <FontAwesomeIcon icon={faExclamation} color="#ef4444" className="text-2xl mr-1" />
-            {text}
-        </div>
-    );
+    if (text) {
+        return (
+            <div role="alert" className="inline-block text-red-500 mr-2">
+                <FontAwesomeIcon
+                    icon={faExclamation}
+                    color="#ef4444"
+                    className="text-2xl mr-1 -mb-1"
+                />
+                {text}
+            </div>
+        );
+    }
 };

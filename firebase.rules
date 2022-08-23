@@ -59,7 +59,7 @@ service cloud.firestore {
 
         function isValidUsername(value) {
             let username = value.lower();
-            let isValidLength = username.size() >= 3 && username.size() <= 16;
+            let isValidLength = username.size() >= 3 && username.size() <= 24;
             let hasValidChars = !username.matches('[^\\w-]');
 
             return isValidLength && hasValidChars;

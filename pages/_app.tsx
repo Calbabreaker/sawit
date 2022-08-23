@@ -1,10 +1,10 @@
 import { NavBar } from "components/NavBar";
 import "./globals.css";
 import { IUserContext, UserContext } from "lib/context";
-import { onAuthStateChanged } from "firebase/auth";
+import { onAuthStateChanged, onIdTokenChanged } from "firebase/auth";
 import { destroyCookie, setCookie, parseCookies } from "nookies";
 import { useEffect, useState } from "react";
-import { auth } from "lib/firebase";
+import { auth, database } from "lib/firebase";
 import type { AppContext, AppProps } from "next/app";
 import App from "next/app";
 import { Popup } from "components/Popup";
@@ -13,6 +13,7 @@ import { ValidateResponse } from "./api/validate";
 import { useRouter } from "next/router";
 import Router from "next/router";
 import nProgress from "nprogress";
+import { doc, getDoc } from "firebase/firestore";
 
 interface Props extends AppProps {
     userCtxIntial?: IUserContext;
@@ -26,9 +27,14 @@ function MyApp({ Component, pageProps, userCtxIntial }: Props) {
     const [userCtx, setUserCtx] = useState(userCtxIntial);
 
     useEffect(() => {
-        return onAuthStateChanged(auth, async (user) => {
+        return onIdTokenChanged(auth, async (user) => {
             if (user) {
+                setCookie(null, "userToken", await user.getIdToken(), { path: "/" });
                 setCookie(null, "refreshToken", user.refreshToken, { path: "/" });
+                if (!userCtx) {
+                    const snapshot = await getDoc(doc(database, `users/${user.uid}`));
+                    setUserCtx({ uid: user.uid, username: snapshot.get("name") });
+                }
             } else {
                 destroyCookie(null, "userToken", { path: "/" });
                 destroyCookie(null, "refreshToken", { path: "/" });
