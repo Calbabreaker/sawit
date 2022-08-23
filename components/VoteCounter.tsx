@@ -19,16 +19,16 @@ export const VoteCounter: React.FC<Props> = ({ upvotes: startUpvotes, thread, po
     const [loading, setLoading] = useState(true);
 
     async function checkVoteDoc() {
-        if (!user) return;
         const voteDoc = await getDoc(
             doc(database, `/threads/${thread}/posts/${postID}/votes/${user.uid}`)
         );
 
         setVoteChange(voteDoc.data()?.change);
+        setLoading(false);
     }
 
     useEffect(() => {
-        checkVoteDoc().then(() => setLoading(false));
+        user ? checkVoteDoc() : setLoading(false);
     }, []);
 
     async function vote(change: number) {
@@ -36,28 +36,22 @@ export const VoteCounter: React.FC<Props> = ({ upvotes: startUpvotes, thread, po
         if (loading) return;
         setLoading(true);
 
-        const batch = writeBatch(database);
-        const postRef = doc(database, `/threads/${thread}/posts/${postID}`);
-        const voteRef = doc(collection(postRef, "votes"), user.uid);
-
         let newVoteChange = change;
+        let inc = change;
         if (voteChange == change) {
             newVoteChange = null;
-            batch.delete(voteRef);
-            change *= -1;
-        } else {
-            batch.set(voteRef, { change });
-            if (voteChange != null) change *= 2;
-        }
+            inc *= -1;
+        } else if (voteChange != null) inc *= 2;
 
-        batch.update(postRef, { upvotes: increment(change) });
-        try {
-            await batch.commit();
-            setUpvotes(upvotes + change);
+        const res = await fetch(`/api/vote?thread=${thread}&post=${postID}&change=${change}`, {
+            method: change == voteChange ? "DELETE" : "PUT",
+        });
+
+        if (res.ok) {
+            setUpvotes(upvotes + inc);
             setVoteChange(newVoteChange);
-        } catch (err) {
+        } else {
             alert("Failed to vote!");
-            console.error(err);
         }
 
         setLoading(false);
@@ -75,13 +69,17 @@ export const VoteCounter: React.FC<Props> = ({ upvotes: startUpvotes, thread, po
                 className={`${arrowClass} ${voteChange == 1 && selectedClass}`}
                 onClick={() => vote(1)}
             />
-            <div className="text-center mx-auto">{upvotes}</div>
+
+            {loading ? (
+                <FontAwesomeIcon icon={faSpinner} className="text-sm px-1 fa-spin" />
+            ) : (
+                <div className="text-center mx-auto">{upvotes}</div>
+            )}
             <FontAwesomeIcon
                 icon={faArrowDown}
                 className={`${arrowClass} ${voteChange == -1 && selectedClass}`}
                 onClick={() => vote(-1)}
             />
-            {loading && <FontAwesomeIcon icon={faSpinner} className="text-sm px-1 fa-spin" />}
         </>
     );
 };

@@ -4,43 +4,41 @@ import { FieldValue } from "firebase-admin/firestore";
 
 export default async function (req: NextApiRequest, res: NextApiResponse) {
     try {
-        const { thread, postID, up } = req.query;
-        if (!thread || !postID || !up) throw null;
+        const { thread, post } = req.query;
+        const change = Number(req.query.change);
+        if (!thread || !post || Math.abs(change) != 1) throw null;
 
         const { userToken } = req.cookies;
         const { uid } = await adminAuth.verifyIdToken(userToken);
 
-        const batch = adminDatabase.batch();
-        const postRef = adminDatabase.doc(`/threads/${thread}/posts/${postID}`);
+        const postRef = adminDatabase.doc(`/threads/${thread}/posts/${post}`);
         const voteRef = postRef.collection("votes").doc(uid);
-        const voteDoc = (await voteRef.get()).data();
 
-        switch (req.method) {
-            case "PUT":
-                const isUp = up === "1";
-                let incAmount = isUp ? 1 : -1;
+        if (req.method == "PUT") {
+            await adminDatabase.runTransaction(async (transaction) => {
+                const voteDoc = (await transaction.get(voteRef)).data();
+                let incAmount = change;
                 if (voteDoc) {
                     // If the upvote is opposite then multiply by two else do nothing
-                    if (voteDoc.up === isUp) return res.status(200).end();
+                    if (voteDoc.change === change) return res.status(200).end();
                     else incAmount *= 2;
                 }
 
-                batch.update(postRef, { upvotes: FieldValue.increment(incAmount) });
-                batch.set(voteRef, { up: isUp });
-                await batch.commit();
-                res.status(200).end();
-                break;
-            case "DELETE":
+                transaction.update(postRef, { upvotes: FieldValue.increment(incAmount) });
+                transaction.set(voteRef, { change });
+            });
+        } else if (req.method == "DELETE") {
+            await adminDatabase.runTransaction(async (transaction) => {
+                const voteDoc = (await transaction.get(voteRef)).data();
                 if (!voteDoc) throw null;
-                batch.update(postRef, { upvotes: FieldValue.increment(voteDoc.up ? -1 : 1) });
-                batch.delete(voteRef);
-                res.status(200).end();
-                break;
-            default:
-                res.setHeader("Allow", ["PUT", "DELETE"]);
-                res.status(405).end(`Method ${req.method} Not Allowed`);
-        }
+                transaction.update(postRef, { upvotes: FieldValue.increment(voteDoc.change) });
+                transaction.delete(voteRef);
+            });
+        } else throw null;
+
+        res.status(200).end();
     } catch (err) {
-        res.status(400).json(err);
+        console.error(err);
+        res.status(400).end(null);
     }
 }
