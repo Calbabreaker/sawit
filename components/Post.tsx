@@ -1,9 +1,7 @@
 import Link from "next/link";
 import { PostData } from "lib/types";
-import { database } from "lib/firebase";
-import { deleteDoc, doc } from "firebase/firestore";
 import { VoteCounter } from "./VoteCounter";
-import { UserContext } from "lib/context";
+import { UserContext } from "lib/utils";
 import { useContext } from "react";
 
 interface Props {
@@ -21,7 +19,8 @@ export const Post: React.FC<Props> = ({
 
     async function deletePost() {
         if (confirm("Are you sure want to delete it?")) {
-            await deleteDoc(doc(database, `/threads/${thread}/posts/${id}`));
+            const res = await fetch(`/api/post?thread=${thread}&post=${id}`, { method: "DELETE" });
+            if (!res.ok) return alert("Failed to delete post!");
             onDelete();
         }
     }
@@ -34,15 +33,19 @@ export const Post: React.FC<Props> = ({
             <div className="py-2 pr-2">
                 <div className="text-gray-500 text-xs mb-1">
                     Posted by
-                    <Link href={`/user/${username}`}>
-                        <a className="hover:underline mx-1">{username}</a>
-                    </Link>
+                    {username ? (
+                        <Link href={`/user/${username}`}>
+                            <a className="hover:underline mx-1">{username}</a>
+                        </Link>
+                    ) : (
+                        <span className="mx-1">deleted</span>
+                    )}
                     in
                     <Link href={`/t/${thread}`}>
                         <a className="hover:underline mx-1">t/{thread}</a>
                     </Link>
                 </div>
-                <p className="text-lg font-medium">{title}</p>
+                <p className="text-lg font-medium">{title ?? "Deleted"}</p>
                 <div className="text-sm my-2 break-all">
                     {isSnippet ? (
                         <div className="fade overflow-hidden max-h-80">{content}</div>

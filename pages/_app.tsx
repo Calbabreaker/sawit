@@ -1,7 +1,7 @@
 import { NavBar } from "components/NavBar";
 import "./globals.css";
-import { IUserContext, UserContext } from "lib/context";
-import { onAuthStateChanged, onIdTokenChanged } from "firebase/auth";
+import { IUserContext, UserContext } from "lib/utils";
+import { onIdTokenChanged } from "firebase/auth";
 import { destroyCookie, setCookie, parseCookies } from "nookies";
 import { useEffect, useState } from "react";
 import { auth, database } from "lib/firebase";

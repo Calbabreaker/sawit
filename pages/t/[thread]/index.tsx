@@ -15,11 +15,16 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ params }) 
     const { thread: threadName } = params;
 
     const threadSnapshot = await getDoc(doc(database, `/threads/${threadName}`));
-    if (!threadSnapshot.data()) return { notFound: true };
+    if (!threadSnapshot.exists()) return { notFound: true };
     const thread = snapshotToJSON(threadSnapshot) as ThreadData;
 
     const postSnapshot = await getDocs(
-        query(collection(threadSnapshot.ref, "posts"), orderBy("upvotes", "desc"), limitToLast(10))
+        query(
+            collection(threadSnapshot.ref, "posts"),
+            orderBy("username", "desc"),
+            orderBy("upvotes", "desc"),
+            limitToLast(10)
+        )
     );
 
     const posts = postSnapshot.docs.map(snapshotToJSON) as PostData[];

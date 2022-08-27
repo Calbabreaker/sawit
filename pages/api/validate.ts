@@ -1,7 +1,6 @@
 import { IUserContext } from "lib/context";
 import { adminAuth, adminDatabase } from "lib/firebase_admin";
 import { FIREBASE_CONFIG } from "lib/firebase";
-import { UserData } from "lib/types";
 import { NextApiRequest, NextApiResponse } from "next/types";
 
 async function refreshUserToken(refreshToken: string): Promise<string> {
@@ -23,10 +22,10 @@ export interface ValidateResponse extends IUserContext {
     token?: string;
 }
 
-async function validate(userToken: string, refreshToken: string): Promise<ValidateResponse> {
+export async function validate(userToken: string, refreshToken: string): Promise<ValidateResponse> {
     let newUserToken = undefined;
     const token = await adminAuth.verifyIdToken(userToken).catch(async (err) => {
-        // Refresh the token if expired or invalid
+        // Refresh the token if expired or invalid and try again
         if (err.code == "auth/id-token-expired" || err.code == "auth/argument-error") {
             newUserToken = await refreshUserToken(refreshToken);
             return await adminAuth.verifyIdToken(newUserToken);
@@ -36,10 +35,9 @@ async function validate(userToken: string, refreshToken: string): Promise<Valida
     });
 
     const snapshot = await adminDatabase.doc(`users/${token.uid}`).get();
-    const userData = snapshot.data() as UserData;
     return {
         uid: token.uid,
-        username: userData?.name,
+        username: snapshot.get("name"),
         token: newUserToken,
     };
 }

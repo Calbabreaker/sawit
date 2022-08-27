@@ -1,4 +1,4 @@
-import { UserContext } from "lib/context";
+import { UserContext } from "lib/utils";
 import Link from "next/link";
 import { useContext } from "react";
 import { signOut } from "firebase/auth";

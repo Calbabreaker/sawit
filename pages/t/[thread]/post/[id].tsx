@@ -14,6 +14,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ params }) 
     const { id, thread } = params;
     const snapshot = await getDoc(doc(database, `/threads/${thread}/posts/${id}`));
 
+    if (!snapshot.exists()) return { notFound: true };
     const post = snapshotToJSON(snapshot) as PostData;
     return { props: { post } };
 };

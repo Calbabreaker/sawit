@@ -6,8 +6,6 @@ service cloud.firestore {
 
             match /posts/{postID} {
                 allow read;
-                allow create: if canCreatePost();
-                allow update: if isValidPost(resource.data) && !diffKeys().hasAny(["uid", "username", "upvotes", "thread"]);
 
                 match /votes/{userID} {
                     allow read: if request.auth.uid == userID;
@@ -23,29 +21,6 @@ service cloud.firestore {
 
         match /{path=**}/posts/{postID} {
             allow read;
-        }
-
-        function canCreatePost() {
-            let isNow = request.time == request.resource.data.createdAt;
-            let username = get(/databases/$(database)/documents/users/$(request.auth.uid)).data.name;
-            let usernameMatches = username == request.resource.data.username;
-            let isValidUpvotes = request.resource.data.upvotes == 0;
-            let isValidThread = !("thread" in request.resource.data) || exists(/databases/$(database)/documents/threads/$(request.resource.data.thread));
-
-            return isNow && usernameMatches && isValidUpvotes && isValidThread && isValidPost(request.resource.data);
-        }
-
-        function isValidPost(currentData) {
-            let isOwner = currentData.uid == request.auth.uid;
-            let isValidContent = request.resource.data.content.size() < 10000;
-            let titleSize = request.resource.data.title.size();
-            let isValidTitle = titleSize > 0 && titleSize < 100;
-            
-            return isOwner && isValidContent && isValidTitle;
-        }
-
-        function diffKeys() {
-            return request.resource.data.diff(resource.data).affectedKeys();
         }
 
         function isValidUserData(userId) {

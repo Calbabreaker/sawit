@@ -1,8 +1,5 @@
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
-import { database } from "lib/firebase";
-import { UserContext } from "lib/context";
 import Router from "next/router";
-import { useContext, useEffect } from "react";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { TextEditor } from "./TextEditor";
 import { FormStatus } from "./FormStatus";
@@ -14,27 +11,27 @@ interface Props {
 interface FormValues {
     title: string;
     content: string;
+    [key: string]: string;
 }
 
 export const CreatePost: React.FC<Props> = ({ thread }) => {
-    const { uid, username } = useContext(UserContext);
     const { register, handleSubmit, formState, trigger, setValue } = useForm<FormValues>({
         mode: "onChange",
     });
 
-    const createPost = handleSubmit(async ({ title, content }) => {
-        const data = {
-            username,
-            thread,
-            title,
-            content,
-            uid,
-            createdAt: serverTimestamp(),
-            upvotes: 0,
-        };
+    const createPost = handleSubmit(async (fields) => {
+        const res = await fetch(`/api/post?thread=${thread}`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+            },
+            body: new URLSearchParams(fields),
+        });
 
-        const doc = await addDoc(collection(database, `/threads/${thread}/posts`), data);
-        Router.push(`/t/${thread}/post/${doc.id}`);
+        if (!res.ok) throw "API fetch error";
+
+        const id = await res.text();
+        Router.push(`/t/${thread}/post/${id}`);
     });
 
     useEffect(() => {

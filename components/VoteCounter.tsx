@@ -1,7 +1,7 @@
 import { faArrowDown, faArrowUp, faSpinner } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { doc, getDoc } from "firebase/firestore";
-import { UserContext } from "lib/context";
+import { UserContext } from "lib/utils";
 import { database } from "lib/firebase";
 import Router from "next/router";
 import { useContext, useEffect, useState } from "react";

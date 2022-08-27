@@ -1,5 +1,5 @@
 import { doc, setDoc, serverTimestamp } from "firebase/firestore";
-import { UserContext } from "lib/context";
+import { UserContext } from "lib/utils";
 import { database, getDocByName } from "lib/firebase";
 import { useContext, useEffect } from "react";
 import { useForm } from "react-hook-form";

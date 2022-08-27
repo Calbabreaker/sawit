@@ -4,12 +4,13 @@ export interface DataType {
 }
 
 export interface PostData extends DataType {
-    content: string;
-    title: string;
+    content?: string;
+    title?: string;
     upvotes: number;
-    username: string;
+    username?: string;
     thread: string;
-    uid: string;
+    uid?: string;
+    deleted?: boolean;
 }
 
 export interface ThreadData extends DataType {

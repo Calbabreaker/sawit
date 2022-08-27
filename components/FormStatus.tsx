@@ -14,7 +14,7 @@ export const FormStatus = <T extends FieldValues>({
     buttonText,
     buttonClass = "",
 }: Props<T>) => {
-    const { isValid, isSubmitted, isSubmitting, isSubmitSuccessful, errors, isDirty } = formState;
+    const { isValid, isSubmitted, isSubmitting, isSubmitSuccessful, errors } = formState;
 
     return (
         <>
@@ -35,7 +35,7 @@ export const FormStatus = <T extends FieldValues>({
                         .join(", ")}
                 />
             )}
-            {isSubmitted && !isDirty && !isSubmitSuccessful && (
+            {isSubmitted && isValid && !isSubmitSuccessful && (
                 <ErrorText text={"Failed to create post"} />
             )}
             {isSubmitting && (

@@ -1,5 +1,5 @@
 import { PostData } from "lib/types";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Post } from "./Post";
 import { useTransition, animated } from "@react-spring/web";
 
@@ -9,6 +9,15 @@ interface Props {
 
 export const PostList: React.FC<Props> = ({ posts: startPosts }) => {
     const [posts, setPosts] = useState(startPosts);
+
+    function onScroll() {
+        console.log(window.scrollY);
+    }
+
+    useEffect(() => {
+        window.addEventListener("scroll", onScroll);
+        return () => window.removeEventListener("scroll", onScroll);
+    }, []);
 
     const transitions = useTransition(posts, {
         enter: { opacity: 1 },
