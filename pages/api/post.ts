@@ -1,18 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next/types";
 import { adminAuth, adminDatabase } from "lib/firebase_admin";
-import { Timestamp, DocumentReference, Transaction, FieldValue } from "firebase-admin/firestore";
-
-function ensureOwner(
-    ref: DocumentReference,
-    uid: string,
-    callback: (transaction: Transaction) => Promise<void>
-): Promise<void> {
-    return adminDatabase.runTransaction(async (transaction) => {
-        const doc = await transaction.get(ref);
-        if (doc.get("uid") != uid) throw null;
-        await callback(transaction);
-    });
-}
+import { Timestamp } from "firebase-admin/firestore";
 
 export default async function (req: NextApiRequest, res: NextApiResponse) {
     try {
@@ -27,7 +15,9 @@ export default async function (req: NextApiRequest, res: NextApiResponse) {
             const { title, content } = req.body;
             if (title.length > 100 && content.length > 10000) throw null;
             if (post) {
-                await ensureOwner(postRef, uid, async (transaction) => {
+                return adminDatabase.runTransaction(async (transaction) => {
+                    const doc = await transaction.get(postRef);
+                    if (doc.get("uid") != uid) throw null;
                     transaction.update(postRef, { title, content });
                 });
             } else {
@@ -45,20 +35,14 @@ export default async function (req: NextApiRequest, res: NextApiResponse) {
                 return res.status(200).end(doc.id);
             }
         } else if (req.method == "DELETE") {
-            await ensureOwner(postRef, uid, async (transaction) => {
-                // Don't actually delete the document, just delete the content fields
-                // To fully delete, need to delete all subcollections which will result in a lot of writes
-                transaction.update(postRef, {
-                    title: FieldValue.delete(),
-                    content: FieldValue.delete(),
-                    username: FieldValue.delete(),
-                    uid: FieldValue.delete(),
-                });
-            });
+            const doc = await postRef.get();
+            if (doc.get("uid") != uid) throw null;
+            await adminDatabase.recursiveDelete(postRef);
         } else throw null;
 
         res.status(200).end();
     } catch (err) {
+        console.error(err);
         res.status(400).end(null);
     }
 }

@@ -1,6 +1,6 @@
 import { MetaTags } from "components/MetaTags";
 import { PostList } from "components/PostList";
-import { getDocs, query, collection, orderBy, limitToLast, doc, getDoc } from "firebase/firestore";
+import { getDocs, query, collection, orderBy, doc, getDoc, limit } from "firebase/firestore";
 import { database, snapshotToJSON } from "lib/firebase";
 import { PostData, ThreadData } from "lib/types";
 import Link from "next/link";
@@ -11,6 +11,14 @@ interface Props {
     thread: ThreadData;
 }
 
+const postsQuery = (thread: string) =>
+    query(
+        collection(database, `/threads/${thread}/posts`),
+        orderBy("upvotes", "desc"),
+        orderBy("createdAt"),
+        limit(10)
+    );
+
 export const getServerSideProps: GetServerSideProps<Props> = async ({ params }) => {
     const { thread: threadName } = params;
 
@@ -18,14 +26,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ params }) 
     if (!threadSnapshot.exists()) return { notFound: true };
     const thread = snapshotToJSON(threadSnapshot) as ThreadData;
 
-    const postSnapshot = await getDocs(
-        query(
-            collection(threadSnapshot.ref, "posts"),
-            orderBy("username", "desc"),
-            orderBy("upvotes", "desc"),
-            limitToLast(10)
-        )
-    );
+    const postSnapshot = await getDocs(postsQuery(threadName as string));
 
     const posts = postSnapshot.docs.map(snapshotToJSON) as PostData[];
     return { props: { posts, thread } };
@@ -42,7 +43,7 @@ export default function Thread({ posts, thread }: Props) {
                     <a className="btn btn-primary">Create Post</a>
                 </Link>
             </div>
-            <PostList posts={posts} />
+            <PostList posts={posts} query={postsQuery(thread.id)} />
         </>
     );
 }

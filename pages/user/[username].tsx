@@ -1,6 +1,6 @@
 import { MetaTags } from "components/MetaTags";
 import { PostList } from "components/PostList";
-import { getDocs, query, collectionGroup, orderBy, limitToLast, where } from "firebase/firestore";
+import { getDocs, query, collectionGroup, orderBy, where, limit } from "firebase/firestore";
 import { database, getDocByName, snapshotToJSON } from "lib/firebase";
 import { PostData, UserData } from "lib/types";
 import { GetServerSideProps } from "next/types";
@@ -10,6 +10,15 @@ interface Props {
     user: UserData;
 }
 
+const postQuery = (username: string) =>
+    query(
+        collectionGroup(database, "posts"),
+        where("username", "==", username),
+        orderBy("upvotes", "desc"),
+        orderBy("createdAt"),
+        limit(10)
+    );
+
 export const getServerSideProps: GetServerSideProps<Props> = async ({ params }) => {
     const { username } = params;
 
@@ -17,14 +26,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ params }) 
     if (!userSnapshot) return { notFound: true };
     const user = snapshotToJSON(userSnapshot) as UserData;
 
-    const postSnapshot = await getDocs(
-        query(
-            collectionGroup(database, "posts"),
-            where("username", "==", username),
-            orderBy("upvotes", "desc"),
-            limitToLast(10)
-        )
-    );
+    const postSnapshot = await getDocs(postQuery(user.name));
 
     const posts = postSnapshot.docs.map(snapshotToJSON) as PostData[];
     return { props: { posts, user } };
@@ -36,7 +38,7 @@ export default function Thread({ posts, user }: Props) {
             <MetaTags title={user.name} description={user.description} />
             <h1 className="text-2xl">User {user.name}</h1>
             <p className="mb-4">{user.description}</p>
-            <PostList posts={posts} />
+            <PostList posts={posts} query={postQuery(user.name)} />
         </>
     );
 }

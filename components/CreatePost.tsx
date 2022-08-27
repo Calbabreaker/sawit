@@ -5,7 +5,6 @@ import { TextEditor } from "./TextEditor";
 import { FormStatus } from "./FormStatus";
 import { faMarkdown } from "@fortawesome/free-brands-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import Link from "next/link";
 
 interface Props {
     thread: string;

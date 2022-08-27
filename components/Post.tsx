@@ -3,9 +3,8 @@ import { PostData } from "lib/types";
 import { VoteCounter } from "./VoteCounter";
 import { UserContext } from "lib/utils";
 import { useContext } from "react";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
 import { MarkdownViewer } from "./MarkdownViewer";
+import { format } from "timeago.js";
 
 interface Props {
     post: PostData;
@@ -14,7 +13,7 @@ interface Props {
 }
 
 export const Post: React.FC<Props> = ({
-    post: { title, username, upvotes, thread, content = "", id },
+    post: { title, username, upvotes, thread, content = "", id, createdAt },
     isSnippet = true,
     onDelete,
 }) => {
@@ -36,17 +35,14 @@ export const Post: React.FC<Props> = ({
             <div className="py-2 pr-2 w-full">
                 <div className="text-gray-500 text-xs mb-1">
                     Posted by
-                    {username ? (
-                        <Link href={`/user/${username}`}>
-                            <a className="hover:underline mx-1">{username}</a>
-                        </Link>
-                    ) : (
-                        <span className="mx-1">deleted</span>
-                    )}
+                    <Link href={`/user/${username}`}>
+                        <a className="hover:underline mx-1">{username}</a>
+                    </Link>
                     in
                     <Link href={`/t/${thread}`}>
                         <a className="hover:underline mx-1">t/{thread}</a>
                     </Link>
+                    {format(createdAt)}
                 </div>
                 <h2 className="text-lg font-medium">{title ?? "Deleted"}</h2>
                 <MarkdownViewer

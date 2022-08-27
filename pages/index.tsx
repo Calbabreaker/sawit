@@ -1,13 +1,5 @@
 import { GetServerSideProps } from "next/types";
-import {
-    query,
-    orderBy,
-    limitToLast,
-    getDocs,
-    collectionGroup,
-    collection,
-    limit,
-} from "firebase/firestore";
+import { query, orderBy, getDocs, collectionGroup, collection, limit } from "firebase/firestore";
 import { database, snapshotToJSON } from "lib/firebase";
 import { PostData, ThreadData } from "lib/types";
 import { MetaTags } from "components/MetaTags";
@@ -19,20 +11,22 @@ interface Props {
     threads: ThreadData[];
 }
 
+const postsQuery = query(
+    collectionGroup(database, "posts"),
+    orderBy("upvotes", "desc"),
+    orderBy("createdAt"),
+    limit(10)
+);
+
 export const getServerSideProps: GetServerSideProps<Props> = async () => {
-    const postsSnapshot = await getDocs(
-        query(
-            collectionGroup(database, "posts"),
-            orderBy("username", "desc"),
-            orderBy("upvotes", "desc"),
-            limitToLast(10)
-        )
-    );
+    const postsSnapshot = await getDocs(postsQuery);
     const posts = postsSnapshot.docs.map(snapshotToJSON) as PostData[];
 
     const threadsSnapshot = await getDocs(query(collection(database, "threads"), limit(10)));
     const threads = threadsSnapshot.docs.map(snapshotToJSON) as ThreadData[];
-    return { props: { posts, threads } };
+    return {
+        props: { posts, threads },
+    };
 };
 
 export default function Home({ posts, threads }: Props) {
@@ -47,7 +41,7 @@ export default function Home({ posts, threads }: Props) {
                     </Link>
                 ))}
             </div>
-            <PostList posts={posts} />
+            <PostList posts={posts} query={postsQuery} />
         </>
     );
 }
