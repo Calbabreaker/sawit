@@ -73,8 +73,8 @@ export const VoteCounter: React.FC<Props> = ({ upvotes: startUpvotes, thread, po
         setLoading(false);
     }
 
-    const arrowClass = `block mx-auto text-lg px-1 border border-dashed border-transparent ${
-        !loading && "hover:border-gray-500 hover:cursor-pointer"
+    const arrowClass = `block mx-auto text-lg px-1 border-transparent ${
+        !loading && "hover:bg-gray-400/40 hover:cursor-pointer"
     }`;
     const selectedClass = "text-blue-500";
 
@@ -87,7 +87,7 @@ export const VoteCounter: React.FC<Props> = ({ upvotes: startUpvotes, thread, po
             />
 
             {loading ? (
-                <FontAwesomeIcon icon={faSpinner} className="text-sm px-3 fa-spin " />
+                <FontAwesomeIcon icon={faSpinner} className="text-sm px-3 fa-spin" />
             ) : (
                 <div className="text-center text-base mx-auto">{shortenLength(upvotes)}</div>
             )}

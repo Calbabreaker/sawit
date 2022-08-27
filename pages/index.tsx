@@ -39,11 +39,14 @@ export default function Home({ posts, threads }: Props) {
     return (
         <>
             <MetaTags title="Sawit Home" description="Get the best posts on our site" />
-            {threads.map((thread) => (
-                <Link href={`/t/${thread.id}`}>
-                    <a className="hover:underline mr-2">t/{thread.id}</a>
-                </Link>
-            ))}
+            <div className="mb-4">
+                <span className="mr-2">Threads:</span>
+                {threads.map((thread, i) => (
+                    <Link key={i} href={`/t/${thread.id}`}>
+                        <a className="hover:underline mr-2">t/{thread.id}</a>
+                    </Link>
+                ))}
+            </div>
             <PostList posts={posts} />
         </>
     );

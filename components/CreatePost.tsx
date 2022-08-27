@@ -3,6 +3,9 @@ import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { TextEditor } from "./TextEditor";
 import { FormStatus } from "./FormStatus";
+import { faMarkdown } from "@fortawesome/free-brands-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import Link from "next/link";
 
 interface Props {
     thread: string;
@@ -17,6 +20,7 @@ interface FormValues {
 export const CreatePost: React.FC<Props> = ({ thread }) => {
     const { register, handleSubmit, formState, trigger, setValue } = useForm<FormValues>({
         mode: "onChange",
+        defaultValues: { content: "" },
     });
 
     const createPost = handleSubmit(async (fields) => {
@@ -49,8 +53,16 @@ export const CreatePost: React.FC<Props> = ({ thread }) => {
                     maxLength: { value: 100, message: "Title too long" },
                 })}
             />
+            <a
+                href="https://docs.github.com/en/articles/basic-writing-and-formatting-syntax"
+                target="_blank"
+                className="text-gray-400 block hover:underline mt-2"
+            >
+                <FontAwesomeIcon className="mr-1" icon={faMarkdown} />
+                Markdown supported
+            </a>
             <TextEditor
-                className="min-h-[16rem] my-4"
+                className="min-h-[16rem] mb-2"
                 placeholder="Content (optional)"
                 onChange={(text) => setValue("content", text, { shouldValidate: true })}
             />

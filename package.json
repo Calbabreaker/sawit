@@ -13,22 +13,25 @@
         "@fortawesome/free-solid-svg-icons": "^6.1.2",
         "@fortawesome/react-fontawesome": "^0.2.0",
         "@react-spring/web": "^9.5.2",
-        "firebase": "^9.9.2",
+        "@tailwindcss/typography": "^0.5.4",
+        "firebase": "^9.9.3",
         "firebase-admin": "^11.0.1",
-        "next": "^12.2.4",
+        "next": "^12.2.5",
         "nookies": "^2.5.2",
         "nprogress": "^0.2.0",
-        "react": "^18.0.2",
-        "react-dom": "^18.0.2",
-        "react-hook-form": "^7.34.0"
+        "react": "^18.2.0",
+        "react-dom": "^18.2.0",
+        "react-hook-form": "^7.34.2",
+        "react-markdown": "^8.0.3",
+        "remark-gfm": "^3.0.1"
     },
     "devDependencies": {
         "@firebase/app-types": "^0.7.0",
-        "@types/node": "^18.6.4",
-        "@types/react": "^18.0.16",
+        "@types/node": "^18.7.13",
+        "@types/react": "^18.0.17",
         "autoprefixer": "^10.4.8",
         "postcss": "^8.4.16",
         "tailwindcss": "^3.1.8",
-        "typescript": "^4.7.4"
+        "typescript": "^4.8.2"
     }
 }

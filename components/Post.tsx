@@ -3,6 +3,9 @@ import { PostData } from "lib/types";
 import { VoteCounter } from "./VoteCounter";
 import { UserContext } from "lib/utils";
 import { useContext } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import { MarkdownViewer } from "./MarkdownViewer";
 
 interface Props {
     post: PostData;
@@ -11,7 +14,7 @@ interface Props {
 }
 
 export const Post: React.FC<Props> = ({
-    post: { title, username, upvotes, thread, content, id },
+    post: { title, username, upvotes, thread, content = "", id },
     isSnippet = true,
     onDelete,
 }) => {
@@ -30,7 +33,7 @@ export const Post: React.FC<Props> = ({
             <div className="mr-2 bg-blue-50 rounded w-10 py-2">
                 <VoteCounter thread={thread} postID={id} upvotes={upvotes} />
             </div>
-            <div className="py-2 pr-2">
+            <div className="py-2 pr-2 w-full">
                 <div className="text-gray-500 text-xs mb-1">
                     Posted by
                     {username ? (
@@ -45,14 +48,11 @@ export const Post: React.FC<Props> = ({
                         <a className="hover:underline mx-1">t/{thread}</a>
                     </Link>
                 </div>
-                <p className="text-lg font-medium">{title ?? "Deleted"}</p>
-                <div className="text-sm my-2 break-all">
-                    {isSnippet ? (
-                        <div className="fade overflow-hidden max-h-80">{content}</div>
-                    ) : (
-                        <div>{content}</div>
-                    )}
-                </div>
+                <h2 className="text-lg font-medium">{title ?? "Deleted"}</h2>
+                <MarkdownViewer
+                    text={content}
+                    className={"my-2 " + (isSnippet && "fade overflow-hidden max-h-80")}
+                />
                 <Link href={`/t/${thread}/post/${id}`}>
                     <a className="hover:underline">Comments</a>
                 </Link>

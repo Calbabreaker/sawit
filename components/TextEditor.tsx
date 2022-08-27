@@ -1,4 +1,4 @@
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent } from "react";
 
 interface Props {
     placeholder?: string;
@@ -7,20 +7,17 @@ interface Props {
 }
 
 export const TextEditor: React.FC<Props> = ({ placeholder = "", className, onChange }) => {
-    const [showPlaceholder, setShowplaceholder] = useState(true);
-
     function onInput(e: ChangeEvent<HTMLTextAreaElement>) {
         const value = e.currentTarget.value;
         onChange(value);
-        setShowplaceholder(value.length === 0);
     }
-
-    const afterStyle = showPlaceholder && "after:content-[attr(placeholder)] after:text-gray-400";
 
     return (
         <textarea
             placeholder={placeholder}
-            className={`rounded px-4 py-2 border border-black focus:ring h-full w-full ${afterStyle} ${className}`}
+            className={
+                "rounded px-4 py-2 border border-black focus:ring h-full w-full " + className
+            }
             onChange={onInput}
         />
     );
