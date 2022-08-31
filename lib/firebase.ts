@@ -9,6 +9,8 @@ import {
     where,
     getDocs,
     limit,
+    orderBy,
+    QueryConstraint,
 } from "firebase/firestore";
 import { DataType } from "./types";
 
@@ -50,4 +52,20 @@ export async function getDocByName(
         query(collection(database, collectionName), where("name", "==", name), limit(1))
     );
     return snapshot.docs[0];
+}
+
+export const LIMIT = 10;
+
+export function getSortQuery(sort?: string): QueryConstraint {
+    switch (sort) {
+        case "oldest":
+            return orderBy("createdAt");
+        case "latest":
+            return orderBy("createdAt", "desc");
+        case "least":
+            return orderBy("upvotes");
+        // Sort is most upvoted or not valid
+        default:
+            return orderBy("upvotes", "desc");
+    }
 }

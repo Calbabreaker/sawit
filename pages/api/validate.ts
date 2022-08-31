@@ -1,4 +1,4 @@
-import { IUserContext } from "lib/context";
+import { IUserContext } from "lib/utils";
 import { adminAuth, adminDatabase } from "lib/firebase_admin";
 import { FIREBASE_CONFIG } from "lib/firebase";
 import { NextApiRequest, NextApiResponse } from "next/types";
@@ -50,6 +50,7 @@ export default async function (req: NextApiRequest, res: NextApiResponse) {
         const data = await validate(userToken as string, refreshToken as string);
         return res.status(200).send(data);
     } catch (err) {
+        console.error(err);
         return res.status(400).end("Invalid");
     }
 }

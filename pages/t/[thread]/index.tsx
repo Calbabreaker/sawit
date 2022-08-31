@@ -1,38 +1,27 @@
 import { MetaTags } from "components/MetaTags";
-import { PostList } from "components/PostList";
-import { getDocs, query, collection, orderBy, doc, getDoc, limit } from "firebase/firestore";
+import { Feed } from "components/Feed";
+import { collection, doc, getDoc } from "firebase/firestore";
 import { database, snapshotToJSON } from "lib/firebase";
-import { PostData, ThreadData } from "lib/types";
+import { ThreadData } from "lib/types";
 import Link from "next/link";
 import { GetServerSideProps } from "next/types";
+import { Post } from "components/Post";
 
 interface Props {
-    posts: PostData[];
     thread: ThreadData;
 }
 
-const postsQuery = (thread: string) =>
-    query(
-        collection(database, `/threads/${thread}/posts`),
-        orderBy("upvotes", "desc"),
-        orderBy("createdAt"),
-        limit(10)
-    );
+export const getServerSideProps: GetServerSideProps<Props> = async (ctx) => {
+    const { thread } = ctx.params;
 
-export const getServerSideProps: GetServerSideProps<Props> = async ({ params }) => {
-    const { thread: threadName } = params;
-
-    const threadSnapshot = await getDoc(doc(database, `/threads/${threadName}`));
+    const threadSnapshot = await getDoc(doc(database, `/threads/${thread}`));
     if (!threadSnapshot.exists()) return { notFound: true };
-    const thread = snapshotToJSON(threadSnapshot) as ThreadData;
+    const threadData = snapshotToJSON(threadSnapshot) as ThreadData;
 
-    const postSnapshot = await getDocs(postsQuery(threadName as string));
-
-    const posts = postSnapshot.docs.map(snapshotToJSON) as PostData[];
-    return { props: { posts, thread } };
+    return { props: { thread: threadData } };
 };
 
-export default function Thread({ posts, thread }: Props) {
+export default function Thread({ thread }: Props) {
     return (
         <>
             <MetaTags title={`t/${thread.id}`} description={thread.description} />
@@ -43,7 +32,10 @@ export default function Thread({ posts, thread }: Props) {
                     <a className="btn btn-primary">Create Post</a>
                 </Link>
             </div>
-            <PostList posts={posts} query={postsQuery(thread.id)} />
+            <Feed
+                queryTemplate={collection(database, `/threads/${thread.id}/posts`)}
+                Component={Post}
+            />
         </>
     );
 }

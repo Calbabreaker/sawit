@@ -85,10 +85,14 @@ MyApp.getInitialProps = async (context: AppContext) => {
         const { userToken, refreshToken } = parseCookies(context.ctx);
         if (refreshToken) {
             try {
-                // Have to fetch next js api route since can't acess Admin SDK here
+                // Have to fetch next js api route since can't acess Admin SDK in this file
                 const path = `${baseUrl}/api/validate?userToken=${userToken}&refreshToken=${refreshToken}`;
+                console.log(path);
                 const res = await fetch(path);
+                console.log(res.status);
                 const data = (await res.json()) as ValidateResponse;
+
+                console.log(data);
 
                 // Set the cookie when the server decides it needs to be refreshed
                 if (data.token) setCookie(context.ctx, "userToken", data.token, { path: "/" });

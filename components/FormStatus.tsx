@@ -1,7 +1,6 @@
-import { faCheck, faSpinner } from "@fortawesome/free-solid-svg-icons";
+import { faCheck, faSpinner, faExclamation } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { FieldValues, FormState } from "react-hook-form";
-import { ErrorText } from "./ErrorText";
 
 interface Props<T> {
     formState: FormState<T>;
@@ -26,7 +25,7 @@ export const FormStatus = <T extends FieldValues>({
                 {buttonText}
             </button>
             {isSubmitSuccessful && (
-                <FontAwesomeIcon icon={faCheck} color="#3b82f6" className="text-2xl ml-1 -mb-1" />
+                <FontAwesomeIcon icon={faCheck} className="text-blue-500 text-2xl ml-1 -mb-1" />
             )}
             {!isValid && (
                 <ErrorText
@@ -43,4 +42,19 @@ export const FormStatus = <T extends FieldValues>({
             )}
         </>
     );
+};
+
+interface PropsText {
+    text: string;
+}
+
+export const ErrorText: React.FC<PropsText> = ({ text }) => {
+    if (text) {
+        return (
+            <div role="alert" className="inline-block text-red-500 mr-2">
+                <FontAwesomeIcon icon={faExclamation} className="text-2xl mr-1 -mb-1" />
+                {text}
+            </div>
+        );
+    }
 };

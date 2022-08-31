@@ -7,13 +7,13 @@ import { MarkdownViewer } from "./MarkdownViewer";
 import { format } from "timeago.js";
 
 interface Props {
-    post: PostData;
+    item: PostData;
     isSnippet?: boolean;
     onDelete: () => void;
 }
 
 export const Post: React.FC<Props> = ({
-    post: { title, username, upvotes, thread, content = "", id, createdAt },
+    item: { title, username, upvotes, thread, content = "", id, createdAt },
     isSnippet = true,
     onDelete,
 }) => {
