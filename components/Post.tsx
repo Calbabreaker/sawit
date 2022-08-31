@@ -5,6 +5,7 @@ import { UserContext } from "lib/utils";
 import { useContext } from "react";
 import { MarkdownViewer } from "./MarkdownViewer";
 import { format } from "timeago.js";
+import { useRouter } from "next/router";
 
 interface Props {
     item: PostData;
@@ -18,6 +19,7 @@ export const Post: React.FC<Props> = ({
     onDelete,
 }) => {
     const user = useContext(UserContext);
+    const router = useRouter();
 
     async function deletePost() {
         if (confirm("Are you sure want to delete it?")) {
@@ -38,13 +40,17 @@ export const Post: React.FC<Props> = ({
                     <Link href={`/user/${username}`}>
                         <a className="hover:underline mx-1">{username}</a>
                     </Link>
-                    in
-                    <Link href={`/t/${thread}`}>
-                        <a className="hover:underline mx-1">t/{thread}</a>
-                    </Link>
+                    {!router.query.thread && (
+                        <>
+                            in
+                            <Link href={`/t/${thread}`}>
+                                <a className="hover:underline mx-1">t/{thread}</a>
+                            </Link>
+                        </>
+                    )}
                     {format(createdAt)}
                 </div>
-                <h2 className="text-lg font-medium">{title ?? "Deleted"}</h2>
+                <h2 className="text-lg font-medium">{title}</h2>
                 <MarkdownViewer
                     text={content}
                     className={"my-2 " + (isSnippet && "fade overflow-hidden max-h-80")}

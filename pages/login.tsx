@@ -6,12 +6,12 @@ import Router from "next/router";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { MetaTags } from "components/MetaTags";
 
-export const getServerSideProps: GetServerSideProps = async ({ req }) => {
-    if ((req as any).user) {
+export const getServerSideProps: GetServerSideProps = async ({ req, query }) => {
+    if (req.cookies.userToken) {
         return {
             redirect: {
                 permanent: false,
-                destination: "/",
+                destination: (query.return as string) || "/",
             },
         };
     } else {

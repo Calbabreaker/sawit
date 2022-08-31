@@ -12,7 +12,7 @@ interface Props {
 export const getServerSideProps: GetServerSideProps<Props> = async ({ params, req }) => {
     const { thread: threadName } = params;
 
-    if (!(req as any).user) {
+    if (!req.cookies.userToken) {
         return {
             redirect: {
                 permanent: false,

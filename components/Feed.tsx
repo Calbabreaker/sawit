@@ -94,7 +94,7 @@ export const Feed = <T extends DataType>({ queryTemplate, Component }: Props<T>)
                 {isEnd ? (
                     <p>Reached the end of the posts</p>
                 ) : (
-                    <FontAwesomeIcon icon={faSpinner} className="text-2xl ml-1 -mb-1 fa-spin" />
+                    <FontAwesomeIcon icon={faSpinner} className="mx-auto text-lg fa-spin" />
                 )}
             </div>
         </div>

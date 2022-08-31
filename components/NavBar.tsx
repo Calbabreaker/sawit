@@ -5,13 +5,20 @@ import { signOut } from "firebase/auth";
 import { auth } from "lib/firebase";
 import { useRouter } from "next/router";
 
-interface Props {
-    location: string;
-}
-
-export const NavBar: React.FC<Props> = ({ location }) => {
+export const NavBar: React.FC = () => {
     const user = useContext(UserContext);
+
     const router = useRouter();
+    const { username, thread } = router.query;
+    let location = "";
+    let url = "";
+    if (thread) {
+        location = `t/${thread}`;
+        url = `/t/${thread}`;
+    } else if (username) {
+        location = `u/${username}`;
+        url = `/user/${username}`;
+    } else if (router.pathname === "/") location = "Home";
 
     return (
         <nav className="bg-white shadow sticky top-0 w-full z-10">
@@ -20,7 +27,9 @@ export const NavBar: React.FC<Props> = ({ location }) => {
                     <Link href="/">
                         <a className="text-xl font-bold my-auto">Sawit</a>
                     </Link>
-                    <span className="mx-4">{location}</span>
+                    <Link href={url}>
+                        <a className="ml-4 hover:underline">{location}</a>
+                    </Link>
                 </div>
                 <div className="my-auto flex">
                     {user?.username ? (
