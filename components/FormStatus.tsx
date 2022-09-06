@@ -35,7 +35,7 @@ export const FormStatus = <T extends FieldValues>({
                 />
             )}
             {isSubmitted && isValid && !isSubmitSuccessful && (
-                <ErrorText text={"Failed to create post"} />
+                <ErrorText text={"Failed to send request"} />
             )}
             {isSubmitting && (
                 <FontAwesomeIcon icon={faSpinner} className="text-2xl ml-1 -mb-1 fa-spin" />

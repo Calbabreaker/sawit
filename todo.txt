@@ -1,0 +1,5 @@
+edit post page
+create thread page
+full text search
+comments
+icons?

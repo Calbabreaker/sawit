@@ -1,18 +1,17 @@
 import { MetaTags } from "components/MetaTags";
-import { Feed } from "components/Feed";
+import { PostFeed } from "components/Feed";
 import { collection, doc, getDoc } from "firebase/firestore";
 import { database, snapshotToJSON } from "lib/firebase";
 import { ThreadData } from "lib/types";
 import Link from "next/link";
 import { GetServerSideProps } from "next/types";
-import { Post } from "components/Post";
 
-interface Props {
+export interface Props {
     thread: ThreadData;
 }
 
-export const getServerSideProps: GetServerSideProps<Props> = async (ctx) => {
-    const { thread } = ctx.params;
+export const getServerSideProps: GetServerSideProps<Props> = async ({ params }) => {
+    const { thread } = params;
 
     const threadSnapshot = await getDoc(doc(database, `/threads/${thread}`));
     if (!threadSnapshot.exists()) return { notFound: true };
@@ -32,10 +31,7 @@ export default function Thread({ thread }: Props) {
                     <a className="btn btn-primary">Create Post</a>
                 </Link>
             </div>
-            <Feed
-                queryTemplate={collection(database, `/threads/${thread.id}/posts`)}
-                Component={Post}
-            />
+            <PostFeed queryTemplate={collection(database, `/threads/${thread?.id || "s"}/posts`)} />
         </>
     );
 }

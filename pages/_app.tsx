@@ -51,9 +51,11 @@ export default function MyApp({ Component, pageProps }: AppProps) {
 
     return (
         <UserContext.Provider value={userCtx}>
-            <Popup open={popupOpen}>
-                <UsernameForm setUsername={setUsername} />
-            </Popup>
+            {popupOpen && (
+                <Popup>
+                    <UsernameForm setUsername={setUsername} />
+                </Popup>
+            )}
             <NavBar />
             <main className="p-4">
                 <Component {...pageProps} />

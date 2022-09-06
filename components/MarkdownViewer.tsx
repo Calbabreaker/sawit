@@ -10,7 +10,7 @@ export const MarkdownViewer: React.FC<Props> = ({ text, className }) => {
     return (
         <ReactMarkdown
             remarkPlugins={[remarkGfm]}
-            className={`prose prose-sm prose-neutral prose-a:text-blue-600 ${className}`}
+            className={`prose prose-sm prose-neutral prose-a:text-blue-600 max-w-full break-words ${className}`}
         >
             {text}
         </ReactMarkdown>

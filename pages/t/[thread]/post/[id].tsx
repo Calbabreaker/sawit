@@ -23,7 +23,9 @@ export default function PostPage({ post }: Props) {
     return (
         <>
             <MetaTags title={post.title} description={post.content} />
-            <Post item={post} isSnippet={false} onDelete={() => Router.push("/")}></Post>
+            <div>
+                <Post post={post} onDelete={() => Router.push("/")}></Post>
+            </div>
         </>
     );
 }

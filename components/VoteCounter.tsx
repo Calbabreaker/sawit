@@ -1,15 +1,14 @@
 import { faArrowDown, faArrowUp, faSpinner } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { doc, getDoc } from "firebase/firestore";
-import { UserContext } from "lib/utils";
+import { VoteContext, UserContext } from "lib/utils";
 import { database } from "lib/firebase";
 import Router from "next/router";
 import { useContext, useEffect, useState } from "react";
 
 interface Props {
-    upvotes: number;
-    thread: string;
-    postID: string;
+    itemDBPath: string;
+    startUpvotes?: number;
 }
 
 function shortenLength(n: number): string {
@@ -28,30 +27,32 @@ function shortenLength(n: number): string {
     return `${nstr.substring(0, dp)}.${nstr.substring(dp, dp + 1)}${unit}`;
 }
 
-export const VoteCounter: React.FC<Props> = ({ upvotes: startUpvotes, thread, postID }) => {
-    const [upvotes, setUpvotes] = useState(startUpvotes);
+export const VoteCounter: React.FC<Props> = ({ itemDBPath, startUpvotes }) => {
     const user = useContext(UserContext);
-    const [voteChange, setVoteChange] = useState<number>(null);
-    const [loading, setLoading] = useState(true);
+    const voteCtx = useContext(VoteContext);
+
+    const [upvotes, setUpvotes] = voteCtx?.upvotesState ?? useState(startUpvotes);
+    const [voteChange, setVoteChange] = voteCtx?.voteChangeState ?? useState<number>(null);
+
+    const [loading, setLoading] = voteCtx?.loadingState ?? useState(true);
 
     async function checkVoteDoc() {
-        const voteDoc = await getDoc(
-            doc(database, `/threads/${thread}/posts/${postID}/votes/${user.uid}`)
-        );
-
+        const voteDoc = await getDoc(doc(database, `${itemDBPath}/votes/${user.uid}`));
         setVoteChange(voteDoc.data()?.change);
         setLoading(false);
     }
 
     useEffect(() => {
-        user ? checkVoteDoc() : setLoading(false);
+        user && voteChange == null ? checkVoteDoc() : setLoading(false);
     }, []);
 
-    async function vote(change: number) {
+    async function vote(e: React.MouseEvent, change: number) {
+        e.stopPropagation();
         if (!user) return Router.push(`/login/?return=${Router.asPath}`);
         if (loading) return;
         setLoading(true);
 
+        // Compute vote change here since server api can't
         let newVoteChange = change;
         let inc = change;
         if (voteChange == change) {
@@ -59,7 +60,7 @@ export const VoteCounter: React.FC<Props> = ({ upvotes: startUpvotes, thread, po
             inc *= -1;
         } else if (voteChange != null) inc *= 2;
 
-        const res = await fetch(`/api/vote?thread=${thread}&post=${postID}&change=${change}`, {
+        const res = await fetch(`/api/vote?itemDBPath=${itemDBPath}&change=${change}`, {
             method: change == voteChange ? "DELETE" : "PUT",
         });
 
@@ -83,21 +84,20 @@ export const VoteCounter: React.FC<Props> = ({ upvotes: startUpvotes, thread, po
             <FontAwesomeIcon
                 icon={faArrowUp}
                 className={`${arrowClass} ${voteChange == 1 && selectedClass}`}
-                onClick={() => vote(1)}
+                onClick={(e) => vote(e, 1)}
             />
-
             {loading ? (
                 <FontAwesomeIcon
                     icon={faSpinner}
                     className="text-base my-1 mx-auto fa-spin !block"
                 />
             ) : (
-                <div className="text-center mx-auto">{shortenLength(upvotes)}</div>
+                <div className={`text-center mx-auto`}>{shortenLength(upvotes)}</div>
             )}
             <FontAwesomeIcon
                 icon={faArrowDown}
                 className={`${arrowClass} ${voteChange == -1 && selectedClass}`}
-                onClick={() => vote(-1)}
+                onClick={(e) => vote(e, -1)}
             />
         </>
     );

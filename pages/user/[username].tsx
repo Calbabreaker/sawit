@@ -1,10 +1,9 @@
 import { MetaTags } from "components/MetaTags";
-import { Feed } from "components/Feed";
+import { PostFeed } from "components/Feed";
 import { query, collectionGroup, where } from "firebase/firestore";
 import { database, getDocByName, snapshotToJSON } from "lib/firebase";
 import { UserData } from "lib/types";
 import { GetServerSideProps } from "next/types";
-import { Post } from "components/Post";
 
 interface Props {
     user: UserData;
@@ -26,12 +25,11 @@ export default function Thread({ user }: Props) {
             <MetaTags title={user.name} description={user.description} />
             <h1 className="text-2xl">User {user.name}</h1>
             <p className="mb-4">{user.description}</p>
-            <Feed
+            <PostFeed
                 queryTemplate={query(
                     collectionGroup(database, "posts"),
                     where("username", "==", user.name)
                 )}
-                Component={Post}
             />
         </>
     );

@@ -4,14 +4,14 @@ import { FieldValue } from "firebase-admin/firestore";
 
 export default async function (req: NextApiRequest, res: NextApiResponse) {
     try {
-        const { thread, post } = req.query;
+        const { itemDBPath } = req.query;
         const change = Number(req.query.change);
-        if (!thread || !post || Math.abs(change) != 1) throw null;
+        if (!itemDBPath || Math.abs(change) != 1) throw null;
 
         const { userToken } = req.cookies;
         const { uid } = await adminAuth.verifyIdToken(userToken);
 
-        const postRef = adminDatabase.doc(`/threads/${thread}/posts/${post}`);
+        const postRef = adminDatabase.doc(itemDBPath as string);
         const voteRef = postRef.collection("votes").doc(uid);
 
         if (req.method == "PUT") {

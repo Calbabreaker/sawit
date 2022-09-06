@@ -1,18 +1,40 @@
+import { faClose } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { useEffect } from "react";
+
 interface PopupProps {
-    open: boolean;
-    children: JSX.Element;
+    children: JSX.Element[] | JSX.Element;
+    onClose?: () => void;
 }
 
-export const Popup: React.FC<PopupProps> = ({ open, children }) => {
-    if (open) {
-        return (
-            <div className="fixed top-0 left-0 bg-black/30 w-full h-full grid place-items-center overflow-y-hidden z-20">
-                <div className="max-w-lg m-4 h-fit bg-gray-100 shadow-lg rounded-lg">
+export const Popup: React.FC<PopupProps> = ({ children, onClose }) => {
+    useEffect(() => {
+        // Prevent user from scrolling in the background
+        const style = document.body.style;
+        style.overflow = "hidden";
+        return () => (style.overflow = null);
+    }, []);
+
+    return (
+        <div className="fixed top-0 left-0 bg-black/50 w-full h-full z-20 grid place-items-center overflow-y-auto overflow-x-hidden px-16 py-8">
+            <div className="w-full min-w-0 max-w-3xl z-30">
+                {onClose && (
+                    <div className="bg-black text-white rounded-t-lg">
+                        <button onClick={onClose}>
+                            <FontAwesomeIcon className="mx-2" icon={faClose} />
+                            Close
+                        </button>
+                    </div>
+                )}
+                <div
+                    className={`bg-gray-100 overflow-y-auto ${
+                        onClose ? "rounded-b-lg" : "rounded-lg"
+                    }`}
+                >
                     {children}
                 </div>
             </div>
-        );
-    } else {
-        return null;
-    }
+            <div className="w-full h-full absolute" onClick={onClose} />
+        </div>
+    );
 };
