@@ -46,8 +46,8 @@ const Feed = <T extends DataType>({ queryTemplate, render }: Props<T>) => {
         const newItems = snapshot.docs.map(snapshotToJSON);
         if (newItems.length < LIMIT) {
             setIsEnd(true);
+            // Don't unset blockGetMore if at end to block forever
         } else {
-            // Don't unblock if reach end to block forever
             blockGetMore.current = false;
         }
 

@@ -8,7 +8,6 @@ import { auth, database } from "lib/firebase";
 import type { AppProps } from "next/app";
 import { Popup } from "components/Popup";
 import { UsernameForm } from "components/UsernameForm";
-import Router from "next/router";
 import nProgress from "nprogress";
 import { doc, getDoc } from "firebase/firestore";
 import "@fortawesome/fontawesome-svg-core/styles.css";
@@ -16,10 +15,6 @@ import "@fortawesome/fontawesome-svg-core/styles.css";
 // Prevent fontawesome from adding its CSS since we did it manually above:
 import { config } from "@fortawesome/fontawesome-svg-core";
 config.autoAddCss = false;
-
-Router.events.on("routeChangeStart", nProgress.start);
-Router.events.on("routeChangeError", nProgress.done);
-Router.events.on("routeChangeComplete", nProgress.done);
 
 export default function MyApp({ Component, pageProps }: AppProps) {
     const [userCtx, setUserCtx] = useState<IUserContext>();

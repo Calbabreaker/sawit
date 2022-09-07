@@ -20,7 +20,7 @@ PROJECT_ID=
 
 ## Developing
 
-First install dependencies:
+Install [pnpm](https://pnpm.io/) then install dependencies:
 
 ```sh
 pnpm install
