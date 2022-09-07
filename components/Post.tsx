@@ -8,13 +8,13 @@ import { format } from "timeago.js";
 import { useRouter } from "next/router";
 
 interface Props {
-    post: PostData;
+    data: PostData;
     onDelete: () => void;
     setPreview?: (post: PostData) => void;
 }
 
-export const Post: React.FC<Props> = ({ post, setPreview, onDelete }) => {
-    const { title, username, thread, upvotes, content = "", id, createdAt } = post;
+export const Post: React.FC<Props> = ({ data, setPreview, onDelete }) => {
+    const { title, username, thread, upvotes, content = "", id, createdAt } = data;
     const user = useContext(UserContext);
     const router = useRouter();
 
@@ -35,7 +35,7 @@ export const Post: React.FC<Props> = ({ post, setPreview, onDelete }) => {
     return (
         <div
             className={`flex bg-white rounded shadow border border-gray-300 ${hoverClass}`}
-            onClick={setPreview ? () => setPreview(post) : null}
+            onClick={setPreview ? () => setPreview(data) : null}
         >
             <div className="bg-blue-50 rounded p-2">
                 <VoteCounter startUpvotes={upvotes} itemDBPath={`/threads/${thread}/posts/${id}`} />

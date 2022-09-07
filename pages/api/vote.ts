@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next/types";
-import { adminDatabase, adminAuth } from "lib/firebase_admin";
+import { adminDatabase, verifyUser } from "lib/firebase_admin";
 import { FieldValue } from "firebase-admin/firestore";
 
 export default async function (req: NextApiRequest, res: NextApiResponse) {
@@ -8,8 +8,7 @@ export default async function (req: NextApiRequest, res: NextApiResponse) {
         const change = Number(req.query.change);
         if (!itemDBPath || Math.abs(change) != 1) throw null;
 
-        const { userToken } = req.cookies;
-        const { uid } = await adminAuth.verifyIdToken(userToken);
+        const uid = await verifyUser(req.cookies.userToken);
 
         const postRef = adminDatabase.doc(itemDBPath as string);
         const voteRef = postRef.collection("votes").doc(uid);

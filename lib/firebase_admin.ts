@@ -23,3 +23,8 @@ if (admin.apps.length === 0) {
 
 export const adminAuth = getAuth();
 export const adminDatabase = getFirestore();
+
+export async function verifyUser(userToken?: string): Promise<string> {
+    if (!userToken) throw null;
+    return (await adminAuth.verifyIdToken(userToken)).uid;
+}

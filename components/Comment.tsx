@@ -1,5 +1,9 @@
-interface Props {}
+import { CommentData } from "lib/types";
 
-export const Comment: React.FC<Props> = ({}) => {
-    return <div>A comment</div>;
+interface Props {
+    data: CommentData;
+}
+
+export const Comment: React.FC<Props> = ({ data }) => {
+    return <div>{data.content}</div>;
 };

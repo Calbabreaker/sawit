@@ -1,35 +1,33 @@
 import { NextApiRequest, NextApiResponse } from "next/types";
-import { verifyUser, adminDatabase } from "lib/firebase_admin";
+import { adminDatabase, verifyUser } from "lib/firebase_admin";
 import { Timestamp } from "firebase-admin/firestore";
 
 export default async function (req: NextApiRequest, res: NextApiResponse) {
     try {
-        const { thread, post } = req.query;
-        // Ensure thread (id) is provided
+        const { thread, post, comment } = req.query;
+        // Ensure thread and post (id) is provided
         // Throw null because dont care about nice error handling
-        if (!thread) throw null;
+        if (!thread || !post) throw null;
 
-        const uid = await verifyUser(req.cookies.userToken);
-        const baseDBPath = `/threads/${thread}/posts`;
-        const postRef = adminDatabase.doc(`${baseDBPath}/${post}`);
+        const uid = verifyUser(req.cookies.userToken);
+        const baseDBPath = `/threads/${thread}/posts/${post}/comments`;
+        const commentRef = adminDatabase.doc(`${baseDBPath}/${comment}`);
 
         if (req.method == "PUT") {
-            const { title, content } = req.body;
-            if (title.length > 100 && content.length > 10000) throw null;
+            const { content } = req.body;
+            if (content.length > 1000) throw null;
 
-            // If post provided update it else create a new one
-            if (post) {
+            // If comment provided update it else create a new one
+            if (comment) {
                 return adminDatabase.runTransaction(async (transaction) => {
-                    const doc = await transaction.get(postRef);
+                    const doc = await transaction.get(commentRef);
                     if (doc.get("uid") != uid) throw null;
-                    transaction.update(postRef, { title, content });
+                    transaction.update(commentRef, { content });
                 });
             } else {
                 const userDoc = await adminDatabase.doc(`/users/${uid}`).get();
                 const doc = await adminDatabase.collection(baseDBPath).add({
                     username: userDoc.get("name"),
-                    thread,
-                    title,
                     content,
                     uid,
                     createdAt: Timestamp.now(),
@@ -39,13 +37,14 @@ export default async function (req: NextApiRequest, res: NextApiResponse) {
                 return res.status(200).end(doc.id);
             }
         } else if (req.method == "DELETE") {
-            const doc = await postRef.get();
+            const doc = await commentRef.get();
             if (doc.get("uid") != uid) throw null;
-            await adminDatabase.recursiveDelete(postRef);
+            await adminDatabase.recursiveDelete(commentRef);
         } else throw null;
 
         res.status(200).end();
     } catch (err) {
+        console.error(err);
         res.status(400).end(null);
     }
 }

@@ -34,7 +34,7 @@ export const Popup: React.FC<PopupProps> = ({ children, onClose }) => {
                     {children}
                 </div>
             </div>
-            <div className="w-full h-full absolute" onClick={onClose} />
+            <div className="w-full h-full fixed" onClick={onClose} />
         </div>
     );
 };

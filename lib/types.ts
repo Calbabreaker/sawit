@@ -26,5 +26,7 @@ export interface UserData extends DataType {
 export interface CommentData extends DataType {
     content: string;
     username: string;
+    uid: string;
+    upvotes: number;
     replies: CommentData[];
 }

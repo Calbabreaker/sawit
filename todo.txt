@@ -4,4 +4,4 @@ full text search
 more auth options
 remove post loading animation
 comments
-icons?
+user icons?

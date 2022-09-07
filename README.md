@@ -10,7 +10,7 @@ Online posting web app
 4. Click on the setting icons then `Project Settings`
 5. Scroll to the bottom to find the sdk config and put that in [lib/firebase.ts](./lib/firebase.ts).
 6. Then go to the `Service Account` tab and download the private config json file.
-7. Create a file named `.env.local` in the project directory with these contents using the corresponding values from the json file:
+7. Create a file named `.env.local` in the project directory with these contents using the corresponding values from the json file (make sure to include the quotes):
 
 ```
 PRIVATE_KEY=
