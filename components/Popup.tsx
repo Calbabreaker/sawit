@@ -19,7 +19,7 @@ export const Popup: React.FC<PopupProps> = ({ children, onClose }) => {
         <div className="fixed top-0 left-0 bg-black/50 w-full h-full z-20 grid place-items-center overflow-y-auto overflow-x-hidden px-16 py-8">
             <div className="w-full min-w-0 max-w-3xl z-30">
                 {onClose && (
-                    <div className="bg-black text-white rounded-t-lg">
+                    <div className="bg-gray-900 text-white rounded-t-lg">
                         <button onClick={onClose}>
                             <FontAwesomeIcon className="mx-2" icon={faClose} />
                             Close

@@ -1,5 +1,7 @@
 edit post page
 create thread page
 full text search
+more auth options
+remove post loading animation
 comments
 icons?

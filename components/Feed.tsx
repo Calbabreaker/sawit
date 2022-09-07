@@ -84,14 +84,11 @@ export const PostFeed: React.FC<Props> = ({ queryTemplate }) => {
     const previewPost = useRef<PostData>(undefined);
 
     function setPreviewPost(post: PostData) {
-        setShowPreview(true);
         const newUrl = `/t/${post.thread}/post/${post.id}`;
-        history.pushState(
-            { ...history.state, href: newUrl, as: newUrl, isPreviewing: true },
-            "",
-            newUrl
-        );
+        history.pushState({ isPreviewing: true }, undefined, newUrl);
+        document.title = post.title;
         previewPost.current = post;
+        setShowPreview(true);
     }
 
     function onPopState() {
@@ -99,6 +96,11 @@ export const PostFeed: React.FC<Props> = ({ queryTemplate }) => {
     }
 
     useEffect(() => {
+        router.beforePopState((state) => {
+            // Disable nextjs routing if previewing post
+            return state.as == router.asPath ? false : true;
+        });
+
         window.addEventListener("popstate", onPopState);
         return () => window.removeEventListener("popstate", onPopState);
     }, []);

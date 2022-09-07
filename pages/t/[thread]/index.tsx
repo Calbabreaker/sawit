@@ -16,6 +16,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ params }) 
     const threadSnapshot = await getDoc(doc(database, `/threads/${thread}`));
     if (!threadSnapshot.exists()) return { notFound: true };
     const threadData = snapshotToJSON(threadSnapshot) as ThreadData;
+    console.log("get");
 
     return { props: { thread: threadData } };
 };
