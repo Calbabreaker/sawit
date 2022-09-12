@@ -1,14 +1,16 @@
 import { faArrowDown, faArrowUp, faSpinner } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { doc, getDoc } from "firebase/firestore";
+import { collection, getDocs, query, where } from "firebase/firestore";
 import { VoteContext, UserContext } from "lib/utils";
 import { database } from "lib/firebase";
 import Router from "next/router";
 import { useContext, useEffect, useState } from "react";
 
 interface Props {
-    itemDBPath: string;
-    startUpvotes?: number;
+    thread: string;
+    postID: string;
+    commentID?: string;
+    startingUpvotes: number;
 }
 
 function shortenLength(n: number): string {
@@ -27,24 +29,31 @@ function shortenLength(n: number): string {
     return `${nstr.substring(0, dp)}.${nstr.substring(dp, dp + 1)}${unit}`;
 }
 
-export const VoteCounter: React.FC<Props> = ({ itemDBPath, startUpvotes }) => {
+export const VoteCounter: React.FC<Props> = ({ thread, postID, commentID, startingUpvotes }) => {
     const user = useContext(UserContext);
     const voteCtx = useContext(VoteContext);
 
-    const [upvotes, setUpvotes] = voteCtx?.upvotesState ?? useState(startUpvotes);
+    const [upvotes, setUpvotes] = voteCtx?.upvotesState ?? useState(startingUpvotes);
     const [voteChange, setVoteChange] = voteCtx?.voteChangeState ?? useState<number>(null);
+    const [loading, setLoading] = voteCtx?.loadingState ?? useState(false);
 
-    const [loading, setLoading] = voteCtx?.loadingState ?? useState(true);
+    async function getVoteDoc() {
+        setLoading(true);
+        const whereClause = commentID
+            ? where("threadPostComment", "==", thread + postID + commentID)
+            : where("threadPost", "==", thread + postID);
 
-    async function checkVoteDoc() {
-        const voteDoc = await getDoc(doc(database, `${itemDBPath}/votes/${user.uid}`));
-        setVoteChange(voteDoc.data()?.change);
+        const voteSnapshot = await getDocs(
+            query(collection(database, `/users/${user.uid}/votes`), whereClause)
+        );
+
+        if (voteSnapshot.docs[0]) setVoteChange(voteSnapshot.docs[0].get("change"));
         setLoading(false);
     }
 
     useEffect(() => {
-        user && voteChange == null ? checkVoteDoc() : setLoading(false);
-    }, []);
+        if (user && voteChange == null) getVoteDoc();
+    }, [user]);
 
     async function vote(e: React.MouseEvent, change: number) {
         e.stopPropagation();
@@ -60,7 +69,9 @@ export const VoteCounter: React.FC<Props> = ({ itemDBPath, startUpvotes }) => {
             inc *= -1;
         } else if (voteChange != null) inc *= 2;
 
-        const res = await fetch(`/api/vote?itemDBPath=${itemDBPath}&change=${change}`, {
+        let url = `/api/vote?thread=${thread}&post=${postID}&change=${change}`;
+        if (commentID) url += `&comment=${commentID}`;
+        const res = await fetch(url, {
             method: change == voteChange ? "DELETE" : "PUT",
         });
 
@@ -68,6 +79,8 @@ export const VoteCounter: React.FC<Props> = ({ itemDBPath, startUpvotes }) => {
             setUpvotes(upvotes + inc);
             setVoteChange(newVoteChange);
         } else {
+            const data = await res.text();
+            console.error(data);
             alert("Failed to vote!");
         }
 

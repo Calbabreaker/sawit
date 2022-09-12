@@ -1,3 +1,4 @@
+import { CommentFeed } from "components/Feed";
 import { MetaTags } from "components/MetaTags";
 import { Post } from "components/Post";
 import { getDoc, doc } from "firebase/firestore";
@@ -23,9 +24,8 @@ export default function PostPage({ post }: Props) {
     return (
         <>
             <MetaTags title={post.title} description={post.content} />
-            <div>
-                <Post data={post} onDelete={() => Router.push("/")}></Post>
-            </div>
+            <Post data={post} onDelete={() => Router.push("/")}></Post>
+            <CommentFeed postID={post.id} thread={post.thread} />
         </>
     );
 }

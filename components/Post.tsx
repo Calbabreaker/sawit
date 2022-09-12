@@ -2,10 +2,11 @@ import Link from "next/link";
 import { PostData } from "lib/types";
 import { VoteCounter } from "./VoteCounter";
 import { UserContext } from "lib/utils";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { MarkdownViewer } from "./MarkdownViewer";
 import { format } from "timeago.js";
 import { useRouter } from "next/router";
+import { CommentFeed } from "./Feed";
 
 interface Props {
     data: PostData;
@@ -15,14 +16,20 @@ interface Props {
 
 export const Post: React.FC<Props> = ({ data, setPreview, onDelete }) => {
     const { title, username, thread, upvotes, content = "", id, createdAt } = data;
+    const [deleting, setDeleting] = useState(false);
     const user = useContext(UserContext);
     const router = useRouter();
 
     async function deletePost(e: React.MouseEvent) {
         e.stopPropagation();
+        setDeleting(true);
         if (confirm("Are you sure want to delete it?")) {
             const res = await fetch(`/api/post?thread=${thread}&post=${id}`, { method: "DELETE" });
-            if (!res.ok) return alert("Failed to delete post!");
+            if (!res.ok) {
+                setDeleting(false);
+                return alert("Failed to delete post!");
+            }
+
             onDelete();
         }
     }
@@ -38,7 +45,7 @@ export const Post: React.FC<Props> = ({ data, setPreview, onDelete }) => {
             onClick={setPreview ? () => setPreview(data) : null}
         >
             <div className="bg-blue-50 rounded p-2">
-                <VoteCounter startUpvotes={upvotes} itemDBPath={`/threads/${thread}/posts/${id}`} />
+                <VoteCounter startingUpvotes={upvotes} thread={thread} postID={id} />
             </div>
             <div className="p-2 w-full min-w-0">
                 <div className="text-gray-500 text-xs mb-1">
@@ -69,7 +76,7 @@ export const Post: React.FC<Props> = ({ data, setPreview, onDelete }) => {
                     className={"my-2 " + (setPreview && "fade overflow-hidden max-h-80")}
                 />
                 {user?.username == username && (
-                    <button className="btn btn-small" onClick={deletePost}>
+                    <button className="btn btn-small" onClick={deletePost} disabled={deleting}>
                         Delete
                     </button>
                 )}

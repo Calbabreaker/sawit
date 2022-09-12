@@ -11,13 +11,10 @@ export const NavBar: React.FC = () => {
     const router = useRouter();
     const { username, thread } = router.query;
     let location = "";
-    let url = "";
     if (thread) {
         location = `t/${thread}`;
-        url = `/t/${thread}`;
     } else if (username) {
         location = `u/${username}`;
-        url = `/user/${username}`;
     } else if (router.pathname === "/") location = "Home";
 
     return (
@@ -27,9 +24,7 @@ export const NavBar: React.FC = () => {
                     <Link href="/">
                         <a className="text-xl font-bold my-auto">Sawit</a>
                     </Link>
-                    <Link href={url}>
-                        <a className="ml-4 hover:underline">{location}</a>
-                    </Link>
+                    <span className="ml-4">{location}</span>
                 </div>
                 <div className="my-auto flex">
                     {user?.username ? (

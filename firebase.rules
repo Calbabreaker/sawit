@@ -7,10 +7,6 @@ service cloud.firestore {
             match /posts/{postID} {
                 allow read;
 
-                match /votes/{userID} {
-                    allow read: if request.auth.uid == userID;
-                }
-
                 match /comments/{commentID} {
                     allow read;
                 }
@@ -20,6 +16,10 @@ service cloud.firestore {
         match /users/{userID} {
             allow read;
             allow create: if isValidUserData(userID);
+
+            match /votes/{voteID} {
+                allow read: if request.auth.uid == userID;
+            }
         }
 
         match /{path=**}/posts/{postID} {

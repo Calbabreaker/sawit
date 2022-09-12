@@ -6,45 +6,41 @@ export default async function (req: NextApiRequest, res: NextApiResponse) {
     try {
         const { thread, post, comment } = req.query;
         // Ensure thread and post (id) is provided
-        // Throw null because dont care about nice error handling
-        if (!thread || !post) throw null;
+        if (!thread || !post) throw "Invalid query";
 
-        const uid = verifyUser(req.cookies.userToken);
+        const uid = await verifyUser(req.cookies.userToken);
         const baseDBPath = `/threads/${thread}/posts/${post}/comments`;
         const commentRef = adminDatabase.doc(`${baseDBPath}/${comment}`);
 
         if (req.method == "PUT") {
             const { content } = req.body;
-            if (content.length > 1000) throw null;
+            if (!content || content.length > 1000) throw "Invalid body";
 
             // If comment provided update it else create a new one
             if (comment) {
-                return adminDatabase.runTransaction(async (transaction) => {
+                await adminDatabase.runTransaction(async (transaction) => {
                     const doc = await transaction.get(commentRef);
-                    if (doc.get("uid") != uid) throw null;
+                    if (doc.get("uid") != uid) throw "Not the owner";
                     transaction.update(commentRef, { content });
                 });
             } else {
                 const userDoc = await adminDatabase.doc(`/users/${uid}`).get();
-                const doc = await adminDatabase.collection(baseDBPath).add({
+                await adminDatabase.collection(baseDBPath).add({
                     username: userDoc.get("name"),
                     content,
                     uid,
                     createdAt: Timestamp.now(),
                     upvotes: 0,
                 });
-
-                return res.status(200).end(doc.id);
             }
         } else if (req.method == "DELETE") {
             const doc = await commentRef.get();
-            if (doc.get("uid") != uid) throw null;
+            if (doc.get("uid") != uid) throw "Not the owner";
             await adminDatabase.recursiveDelete(commentRef);
-        } else throw null;
+        } else throw "Invalid method";
 
         res.status(200).end();
     } catch (err) {
-        console.error(err);
-        res.status(400).end(null);
+        res.status(400).end(err.message || err);
     }
 }

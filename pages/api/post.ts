@@ -4,10 +4,9 @@ import { Timestamp } from "firebase-admin/firestore";
 
 export default async function (req: NextApiRequest, res: NextApiResponse) {
     try {
-        const { thread, post } = req.query;
+        const { thread, post } = req.query as Record<string, string>;
         // Ensure thread (id) is provided
-        // Throw null because dont care about nice error handling
-        if (!thread) throw null;
+        if (!thread) throw "Invalid query";
 
         const uid = await verifyUser(req.cookies.userToken);
         const baseDBPath = `/threads/${thread}/posts`;
@@ -15,13 +14,13 @@ export default async function (req: NextApiRequest, res: NextApiResponse) {
 
         if (req.method == "PUT") {
             const { title, content } = req.body;
-            if (title.length > 100 && content.length > 10000) throw null;
+            if (!title || title.length > 100 || content.length > 10000) throw "Invalid body";
 
             // If post provided update it else create a new one
             if (post) {
-                return adminDatabase.runTransaction(async (transaction) => {
+                await adminDatabase.runTransaction(async (transaction) => {
                     const doc = await transaction.get(postRef);
-                    if (doc.get("uid") != uid) throw null;
+                    if (doc.get("uid") != uid) throw "Not the owner";
                     transaction.update(postRef, { title, content });
                 });
             } else {
@@ -40,12 +39,17 @@ export default async function (req: NextApiRequest, res: NextApiResponse) {
             }
         } else if (req.method == "DELETE") {
             const doc = await postRef.get();
-            if (doc.get("uid") != uid) throw null;
+            if (doc.get("uid") != uid) throw "Not the owner";
             await adminDatabase.recursiveDelete(postRef);
-        } else throw null;
+            const voteSnapshot = await adminDatabase
+                .collectionGroup("votes")
+                .where("threadPost", "==", thread + post)
+                .get();
+            await Promise.all(voteSnapshot.docs.map((doc) => doc.ref.delete));
+        } else throw "Invalid method";
 
         res.status(200).end();
     } catch (err) {
-        res.status(400).end(null);
+        res.status(400).end(err.message || err);
     }
 }

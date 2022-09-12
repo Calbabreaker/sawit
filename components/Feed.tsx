@@ -17,6 +17,7 @@ import { CommentData, DataType, PostData } from "lib/types";
 import { Popup } from "./Popup";
 import { VoteContext } from "lib/utils";
 import { Comment } from "./Comment";
+import { CreateComment } from "./CreateComment";
 
 interface Props<T extends DataType> {
     queryTemplate: Query;
@@ -108,7 +109,7 @@ const Feed = <T extends DataType>({ queryTemplate, render }: Props<T>) => {
             {posts.map((post, i) => render(post, i, onDelete))}
             <div className="text-center">
                 {isEnd ? (
-                    <p>You saw it all</p>
+                    <p className="text-gray-500">There is none left</p>
                 ) : (
                     <FontAwesomeIcon icon={faSpinner} className="mx-auto text-lg fa-spin" />
                 )}
@@ -173,12 +174,12 @@ interface CommentFeedProps {
 
 export const CommentFeed: React.FC<CommentFeedProps> = ({ postID, thread }) => {
     const render: Props<CommentData>["render"] = (data, i, onDelete) => (
-        <Comment key={data.id} data={data} />
+        <Comment key={data.id} data={data} postID={postID} thread={thread} />
     );
 
     return (
-        <div className="text-sm p-2">
-            <div>Comments</div>
+        <div className="p-4 bg-white rounded mt-2">
+            <CreateComment thread={thread} postID={postID} />
             <Feed
                 queryTemplate={collection(database, `/threads/${thread}/posts/${postID}/comments`)}
                 render={render}

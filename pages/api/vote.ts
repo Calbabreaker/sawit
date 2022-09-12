@@ -4,39 +4,51 @@ import { FieldValue } from "firebase-admin/firestore";
 
 export default async function (req: NextApiRequest, res: NextApiResponse) {
     try {
-        const { itemDBPath } = req.query;
+        const { thread, post, comment } = req.query as Record<string, string>;
         const change = Number(req.query.change);
-        if (!itemDBPath || Math.abs(change) != 1) throw null;
+        if (!thread || !post || Math.abs(change) != 1) throw "Invalid query";
 
         const uid = await verifyUser(req.cookies.userToken);
 
-        const postRef = adminDatabase.doc(itemDBPath as string);
-        const voteRef = postRef.collection("votes").doc(uid);
+        let itemPath = `/threads/${thread}/posts/${post}`;
+        if (comment) itemPath += `/comments/${comment}`;
+        const itemRef = adminDatabase.doc(itemPath);
+        const voteColl = adminDatabase.collection(`/users/${uid}/votes`);
+        const voteQuery = comment
+            ? voteColl.where("threadPostComment", "==", thread + post + comment)
+            : voteColl.where("threadPost", "==", thread + post);
 
         if (req.method == "PUT") {
             await adminDatabase.runTransaction(async (transaction) => {
-                const voteDoc = (await transaction.get(voteRef)).data();
+                const voteDoc = (await transaction.get(voteQuery)).docs[0];
                 let incAmount = change;
                 if (voteDoc) {
                     // If the upvote is opposite then multiply by two else do nothing
-                    if (voteDoc.change === change) return res.status(200).end();
+                    if (voteDoc.get("change") === change) return res.status(200).end();
                     else incAmount *= 2;
                 }
 
-                transaction.update(postRef, { upvotes: FieldValue.increment(incAmount) });
-                transaction.set(voteRef, { change });
+                const data = { change } as any;
+                if (comment) data.threadPostComment = thread + post + comment;
+                else data.threadPost = thread + post;
+
+                const voteSnapshot = voteDoc ? voteColl.doc(voteDoc.id) : voteColl.doc();
+                transaction.set(voteSnapshot, data);
+                transaction.update(itemRef, { upvotes: FieldValue.increment(incAmount) });
             });
         } else if (req.method == "DELETE") {
             await adminDatabase.runTransaction(async (transaction) => {
-                const voteDoc = (await transaction.get(voteRef)).data();
-                if (!voteDoc) throw null;
-                transaction.update(postRef, { upvotes: FieldValue.increment(voteDoc.change * -1) });
-                transaction.delete(voteRef);
+                const voteDoc = (await transaction.get(voteQuery)).docs[0];
+                if (!voteDoc) throw "Vote does not exist";
+                transaction.update(itemRef, {
+                    upvotes: FieldValue.increment(voteDoc.get("change") * -1),
+                });
+                transaction.delete(voteColl.doc(voteDoc.id));
             });
-        } else throw null;
+        } else throw "Invalid method";
 
         res.status(200).end();
     } catch (err) {
-        res.status(400).end(null);
+        res.status(400).end(err.message || err);
     }
 }

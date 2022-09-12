@@ -10,10 +10,9 @@ interface Props {
     thread: string;
 }
 
-interface FormValues {
+interface FormValues extends Record<string, string> {
     title: string;
     content: string;
-    [key: string]: string;
 }
 
 export const CreatePost: React.FC<Props> = ({ thread }) => {
@@ -31,10 +30,12 @@ export const CreatePost: React.FC<Props> = ({ thread }) => {
             body: new URLSearchParams(fields),
         });
 
-        if (!res.ok) throw "API fetch error";
+        const data = await res.text();
+        if (!res.ok) {
+            throw console.error(data);
+        }
 
-        const id = await res.text();
-        Router.push(`/t/${thread}/post/${id}`);
+        Router.push(`/t/${thread}/post/${data}`);
     });
 
     useEffect(() => {
