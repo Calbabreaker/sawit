@@ -3,12 +3,11 @@ import "./globals.css";
 import { IUserContext, UserContext } from "lib/utils";
 import { onIdTokenChanged } from "firebase/auth";
 import { destroyCookie, setCookie } from "nookies";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { auth, database } from "lib/firebase";
 import type { AppProps } from "next/app";
 import { Popup } from "components/Popup";
 import { UsernameForm } from "components/UsernameForm";
-import nProgress from "nprogress";
 import { doc, getDoc } from "firebase/firestore";
 import "@fortawesome/fontawesome-svg-core/styles.css";
 

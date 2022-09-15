@@ -12,7 +12,7 @@ export const Comment: React.FC<Props> = ({ data, postID, thread }) => {
     const { id, username, content, upvotes } = data;
     return (
         <div className="p-2 border">
-            <Link href={`/user/${username}`}>
+            <Link href={`/u/${username}`}>
                 <a className="hover:underline">/u/{username}</a>
             </Link>
             <p>{content}</p>

@@ -30,7 +30,7 @@ function shortenLength(n: number): string {
 }
 
 export const VoteCounter: React.FC<Props> = ({ thread, postID, commentID, startingUpvotes }) => {
-    const user = useContext(UserContext);
+    const userCtx = useContext(UserContext);
     const voteCtx = useContext(VoteContext);
 
     const [upvotes, setUpvotes] = voteCtx?.upvotesState ?? useState(startingUpvotes);
@@ -38,26 +38,29 @@ export const VoteCounter: React.FC<Props> = ({ thread, postID, commentID, starti
     const [loading, setLoading] = voteCtx?.loadingState ?? useState(false);
 
     async function getVoteDoc() {
+        if (voteChange != null || loading) return;
         setLoading(true);
+
         const whereClause = commentID
             ? where("threadPostComment", "==", thread + postID + commentID)
             : where("threadPost", "==", thread + postID);
 
         const voteSnapshot = await getDocs(
-            query(collection(database, `/users/${user.uid}/votes`), whereClause)
+            query(collection(database, `/users/${userCtx.uid}/votes`), whereClause)
         );
 
-        if (voteSnapshot.docs[0]) setVoteChange(voteSnapshot.docs[0].get("change"));
+        setVoteChange(voteSnapshot.docs[0]?.get("change") ?? 0);
         setLoading(false);
     }
 
     useEffect(() => {
-        if (user && voteChange == null) getVoteDoc();
-    }, [user]);
+        if (userCtx) getVoteDoc();
+        else setVoteChange(null);
+    }, [userCtx]);
 
     async function vote(e: React.MouseEvent, change: number) {
         e.stopPropagation();
-        if (!user) return Router.push(`/login/?return=${Router.asPath}`);
+        if (!userCtx) return Router.push(`/login/?return=${Router.asPath}`);
         if (loading) return;
         setLoading(true);
 

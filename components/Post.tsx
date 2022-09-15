@@ -6,7 +6,6 @@ import { useContext, useState } from "react";
 import { MarkdownViewer } from "./MarkdownViewer";
 import { format } from "timeago.js";
 import { useRouter } from "next/router";
-import { CommentFeed } from "./Feed";
 
 interface Props {
     data: PostData;
@@ -63,7 +62,7 @@ export const Post: React.FC<Props> = ({ data, setPreview, onDelete }) => {
                         </span>
                     )}
                     Posted by
-                    <Link href={`/user/${username}`}>
+                    <Link href={`/u/${username}`}>
                         <a className="hover:underline mx-1" onClick={stopPropagation}>
                             {username}
                         </a>

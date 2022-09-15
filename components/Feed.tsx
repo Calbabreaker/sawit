@@ -1,4 +1,4 @@
-import { ChangeEvent, useEffect, useRef, useState } from "react";
+import { ChangeEvent, useContext, useEffect, useRef, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpinner } from "@fortawesome/free-solid-svg-icons";
 import {
@@ -15,28 +15,29 @@ import { useRouter } from "next/router";
 import { Post } from "./Post";
 import { CommentData, DataType, PostData } from "lib/types";
 import { Popup } from "./Popup";
-import { VoteContext } from "lib/utils";
+import { UserContext, VoteContext } from "lib/utils";
 import { Comment } from "./Comment";
 import { CreateComment } from "./CreateComment";
 
 interface Props<T extends DataType> {
     queryTemplate: Query;
     render: (data: T, i: number, onDelete: (i: number) => Promise<void>) => JSX.Element;
+    onHistoryPopState?: () => boolean | void;
 }
 
-const Feed = <T extends DataType>({ queryTemplate, render }: Props<T>) => {
+const Feed = <T extends DataType>({ queryTemplate, render, onHistoryPopState }: Props<T>) => {
     const router = useRouter();
     const [posts, setPosts] = useState([]);
     const [isEnd, setIsEnd] = useState(false);
-    const sort = useRef((router.query.sort as string) || "most");
-    const blockGetMore = useRef(false);
+    const [sort, setSort] = useState<string>();
+    const loadingPosts = useRef(false);
     const lastSnapshot = useRef<DocumentSnapshot>();
 
     async function getMore(startFresh = false) {
-        if (blockGetMore.current) return;
-        blockGetMore.current = true;
+        if (loadingPosts.current || isEnd) return;
+        loadingPosts.current = true;
 
-        const constraints = [getSortQuery(sort.current), limit(LIMIT)];
+        const constraints = [getSortQuery(sort), limit(LIMIT)];
         if (!startFresh) {
             constraints.push(startAfter(lastSnapshot.current));
         }
@@ -47,13 +48,11 @@ const Feed = <T extends DataType>({ queryTemplate, render }: Props<T>) => {
         const newItems = snapshot.docs.map(snapshotToJSON);
         if (newItems.length < LIMIT) {
             setIsEnd(true);
-            // Don't unset blockGetMore if at end to block forever
-        } else {
-            blockGetMore.current = false;
         }
 
         if (!startFresh) newItems.unshift(...posts);
         setPosts(newItems);
+        loadingPosts.current = false;
     }
 
     function onScroll() {
@@ -68,10 +67,12 @@ const Feed = <T extends DataType>({ queryTemplate, render }: Props<T>) => {
     }, [posts]);
 
     useEffect(() => {
-        blockGetMore.current = false;
-        setIsEnd(false);
+        updateSort();
+    }, []);
+
+    useEffect(() => {
         getMore(true);
-    }, [router.query.sort]);
+    }, [sort]);
 
     async function onDelete(i: number) {
         const newItems = posts.concat();
@@ -79,16 +80,37 @@ const Feed = <T extends DataType>({ queryTemplate, render }: Props<T>) => {
         setPosts(newItems);
     }
 
+    function updateSort() {
+        const urlParams = new URLSearchParams(location.search);
+        setIsEnd(false);
+        setSort(urlParams.get("sort"));
+    }
+
     function onSelectChange(event: ChangeEvent<HTMLSelectElement>) {
-        sort.current = event.currentTarget.value;
-        router.push(
-            {
-                pathname: router.pathname,
-                query: { ...router.query, sort: sort.current },
-            },
-            undefined,
-            { shallow: true, scroll: false }
-        );
+        const newUrl = `${location.pathname}?sort=${event.currentTarget.value}`;
+        history.pushState(history.state, undefined, newUrl);
+        updateSort();
+    }
+
+    useEffect(() => {
+        router.beforePopState((state) => {
+            // Disable nextjs routing if on same page
+            return state.as == router.asPath ? false : true;
+        });
+
+        window.addEventListener("popstate", onPopState);
+        return () => {
+            window.removeEventListener("popstate", onPopState);
+            router.beforePopState(undefined);
+        };
+    }, []);
+
+    function onPopState() {
+        if (onHistoryPopState) {
+            // onHistoryPopState returns true to block
+            if (onHistoryPopState()) return;
+        }
+        updateSort();
     }
 
     return (
@@ -98,7 +120,7 @@ const Feed = <T extends DataType>({ queryTemplate, render }: Props<T>) => {
                 <select
                     className="mx-2 bg-white rounded border border-gray-300 focus:border-blue-500 focus:outline-none"
                     onChange={onSelectChange}
-                    defaultValue={sort.current}
+                    defaultValue={sort}
                 >
                     <option value="most">Most Upvoted</option>
                     <option value="least">Least Upvoted</option>
@@ -123,31 +145,26 @@ interface PostFeedProps {
 }
 
 export const PostFeed: React.FC<PostFeedProps> = ({ queryTemplate }) => {
-    const [showPreview, setShowPreview] = useState(false);
-    const previewPost = useRef<PostData>(undefined);
+    const [previewPostID, setPreviewPostID] = useState<string>(undefined);
     const router = useRouter();
 
     function setPreviewPost(post: PostData) {
         const newUrl = `/t/${post.thread}/post/${post.id}`;
-        history.pushState({ isPreviewing: true }, undefined, newUrl);
+        history.pushState({ previewPostID: post.id, prevState: history.state }, undefined, newUrl);
         document.title = post.title;
-        previewPost.current = post;
-        setShowPreview(true);
+        setPreviewPostID(post.id);
     }
 
     function onPopState() {
-        setShowPreview(history.state.isPreviewing || false);
+        const postID = history.state.previewPostID;
+        setPreviewPostID(postID);
+        return postID != null;
     }
 
-    useEffect(() => {
-        router.beforePopState((state) => {
-            // Disable nextjs routing if previewing post
-            return state.as == router.asPath ? false : true;
-        });
-
-        window.addEventListener("popstate", onPopState);
-        return () => window.removeEventListener("popstate", onPopState);
-    }, []);
+    function onClose() {
+        history.pushState(history.state.prevState, undefined, router.asPath);
+        setPreviewPostID(null);
+    }
 
     const render: Props<PostData>["render"] = (data, i, onDelete) => (
         // Uses react context to sync upvote info bewtween preview and snippet
@@ -155,8 +172,8 @@ export const PostFeed: React.FC<PostFeedProps> = ({ queryTemplate }) => {
             <div className="mb-2">
                 <Post data={data} onDelete={() => onDelete(i)} setPreview={setPreviewPost} />
             </div>
-            {showPreview && previewPost.current?.id == data.id && (
-                <Popup onClose={() => history.back()}>
+            {previewPostID == data.id && (
+                <Popup onClose={onClose}>
                     <Post data={data} onDelete={() => onDelete(i).then(history.back)} />
                     <CommentFeed postID={data.id} thread={data.thread} />
                 </Popup>
@@ -164,7 +181,7 @@ export const PostFeed: React.FC<PostFeedProps> = ({ queryTemplate }) => {
         </VoteCtxHandler>
     );
 
-    return <Feed queryTemplate={queryTemplate} render={render} />;
+    return <Feed queryTemplate={queryTemplate} render={render} onHistoryPopState={onPopState} />;
 };
 
 interface CommentFeedProps {
@@ -173,13 +190,15 @@ interface CommentFeedProps {
 }
 
 export const CommentFeed: React.FC<CommentFeedProps> = ({ postID, thread }) => {
+    const user = useContext(UserContext);
+
     const render: Props<CommentData>["render"] = (data, i, onDelete) => (
         <Comment key={data.id} data={data} postID={postID} thread={thread} />
     );
 
     return (
         <div className="p-4 bg-white rounded mt-2">
-            <CreateComment thread={thread} postID={postID} />
+            {user && <CreateComment thread={thread} postID={postID} />}
             <Feed
                 queryTemplate={collection(database, `/threads/${thread}/posts/${postID}/comments`)}
                 render={render}
@@ -199,7 +218,7 @@ const VoteCtxHandler: React.FC<VCHProps> = ({ post, children }) => {
             value={{
                 upvotesState: useState(post.upvotes),
                 voteChangeState: useState(undefined),
-                loadingState: useState(true),
+                loadingState: useState(false),
             }}
         >
             {children}

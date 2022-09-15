@@ -29,7 +29,7 @@ export const NavBar: React.FC = () => {
                 <div className="my-auto flex">
                     {user?.username ? (
                         <>
-                            <Link href={`/user/${user.username}`}>
+                            <Link href={`/u/${user.username}`}>
                                 <a className="hover:underline">{user.username}</a>
                             </Link>
                             <span className="mx-1">|</span>
