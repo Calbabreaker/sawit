@@ -45,8 +45,14 @@ export const UsernameForm: React.FC<Props> = ({ setUsername }) => {
                 placeholder="Username"
                 {...register("username", {
                     required: "Username must be greater than 3 characters",
-                    minLength: { value: 3, message: "Username must be greater than 3 characters" },
-                    maxLength: { value: 24, message: "Username must be less than 24 characters" },
+                    minLength: {
+                        value: 3,
+                        message: "Username must be greater than 3 characters",
+                    },
+                    maxLength: {
+                        value: 24,
+                        message: "Username must be less than 24 characters",
+                    },
                     pattern: {
                         value: /[\w-]/g,
                         message: "Username can only contain letters, numbers, '-' and '_'",

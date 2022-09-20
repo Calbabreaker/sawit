@@ -1,6 +1,4 @@
-import { ChangeEvent, useContext, useEffect, useRef, useState } from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faSpinner } from "@fortawesome/free-solid-svg-icons";
+import { useContext, useEffect, useRef, useState } from "react";
 import {
     getDocs,
     query,
@@ -13,21 +11,22 @@ import {
 import { getSortQuery, LIMIT, snapshotToJSON, database } from "lib/firebase";
 import { useRouter } from "next/router";
 import { Post } from "./Post";
-import { CommentData, DataType, PostData } from "lib/types";
+import { CommentData, PostData } from "lib/types";
 import { Popup } from "./Popup";
 import { UserContext, VoteContext } from "lib/utils";
 import { Comment } from "./Comment";
 import { CreateComment } from "./CreateComment";
 
-interface Props<T extends DataType> {
-    queryTemplate: Query;
-    render: (data: T, i: number, onDelete: (i: number) => Promise<void>) => JSX.Element;
-    onHistoryPopState?: () => boolean | void;
+interface UseFeedHook<T> {
+    updateSort: (sort: string, pushState: boolean) => void;
+    onDelete: (i: number) => Promise<void>;
+    items: T[];
+    sort: string;
 }
 
-const Feed = <T extends DataType>({ queryTemplate, render, onHistoryPopState }: Props<T>) => {
+function useFeed<T>(queryTemplate: Query, onHistoryPopState?: () => boolean): UseFeedHook<T> {
     const router = useRouter();
-    const [posts, setPosts] = useState([]);
+    const [items, setPosts] = useState([]);
     const [isEnd, setIsEnd] = useState(false);
     const [sort, setSort] = useState<string>();
     const loadingPosts = useRef(false);
@@ -50,7 +49,7 @@ const Feed = <T extends DataType>({ queryTemplate, render, onHistoryPopState }: 
             setIsEnd(true);
         }
 
-        if (!startFresh) newItems.unshift(...posts);
+        if (!startFresh) newItems.unshift(...items);
         setPosts(newItems);
         loadingPosts.current = false;
     }
@@ -64,10 +63,10 @@ const Feed = <T extends DataType>({ queryTemplate, render, onHistoryPopState }: 
     useEffect(() => {
         window.addEventListener("scroll", onScroll);
         return () => window.removeEventListener("scroll", onScroll);
-    }, [posts]);
+    }, [items]);
 
     useEffect(() => {
-        updateSort();
+        updateSort(sort);
     }, []);
 
     useEffect(() => {
@@ -75,21 +74,16 @@ const Feed = <T extends DataType>({ queryTemplate, render, onHistoryPopState }: 
     }, [sort]);
 
     async function onDelete(i: number) {
-        const newItems = posts.concat();
+        const newItems = items.concat();
         newItems.splice(i, 1);
         setPosts(newItems);
     }
 
-    function updateSort() {
-        const urlParams = new URLSearchParams(location.search);
+    function updateSort(newSort: string, pushState = false) {
+        const newUrl = `${location.pathname}?sort=${newSort}`;
+        if (pushState) history.pushState(history.state, undefined, newUrl);
         setIsEnd(false);
-        setSort(urlParams.get("sort"));
-    }
-
-    function onSelectChange(event: ChangeEvent<HTMLSelectElement>) {
-        const newUrl = `${location.pathname}?sort=${event.currentTarget.value}`;
-        history.pushState(history.state, undefined, newUrl);
-        updateSort();
+        setSort(newSort);
     }
 
     useEffect(() => {
@@ -110,32 +104,31 @@ const Feed = <T extends DataType>({ queryTemplate, render, onHistoryPopState }: 
             // onHistoryPopState returns true to block
             if (onHistoryPopState()) return;
         }
-        updateSort();
+        updateSort(sort);
     }
 
+    return { updateSort, onDelete, items, sort };
+}
+
+interface SortSelectProps {
+    updateSort: UseFeedHook<never>["updateSort"];
+    sort: string;
+}
+
+const SortSelect: React.FC<SortSelectProps> = ({ sort, updateSort }) => {
     return (
-        <div>
-            <div className="mb-2">
-                <span>Sort by:</span>
-                <select
-                    className="mx-2 bg-white rounded border border-gray-300 focus:border-blue-500 focus:outline-none"
-                    onChange={onSelectChange}
-                    defaultValue={sort}
-                >
-                    <option value="most">Most Upvoted</option>
-                    <option value="least">Least Upvoted</option>
-                    <option value="latest">Latest</option>
-                    <option value="oldest">Oldest</option>
-                </select>
-            </div>
-            {posts.map((post, i) => render(post, i, onDelete))}
-            <div className="text-center">
-                {isEnd ? (
-                    <p className="text-gray-500">There is none left</p>
-                ) : (
-                    <FontAwesomeIcon icon={faSpinner} className="mx-auto text-lg fa-spin" />
-                )}
-            </div>
+        <div className="mb-2">
+            <span>Sort by:</span>
+            <select
+                className="mx-2 bg-white rounded border border-gray-300 focus:border-blue-500 focus:outline-none"
+                onChange={(e) => updateSort(e.currentTarget.value, true)}
+                value={sort}
+            >
+                <option value="most">Most Upvoted</option>
+                <option value="least">Least Upvoted</option>
+                <option value="latest">Latest</option>
+                <option value="oldest">Oldest</option>
+            </select>
         </div>
     );
 };
@@ -145,6 +138,13 @@ interface PostFeedProps {
 }
 
 export const PostFeed: React.FC<PostFeedProps> = ({ queryTemplate }) => {
+    function onPopState() {
+        const postID = history.state.previewPostID;
+        setPreviewPostID(postID);
+        return postID != null;
+    }
+
+    const { items, onDelete, sort, updateSort } = useFeed<PostData>(queryTemplate, onPopState);
     const [previewPostID, setPreviewPostID] = useState<string>(undefined);
     const router = useRouter();
 
@@ -155,33 +155,34 @@ export const PostFeed: React.FC<PostFeedProps> = ({ queryTemplate }) => {
         setPreviewPostID(post.id);
     }
 
-    function onPopState() {
-        const postID = history.state.previewPostID;
-        setPreviewPostID(postID);
-        return postID != null;
-    }
-
     function onClose() {
         history.pushState(history.state.prevState, undefined, router.asPath);
         setPreviewPostID(null);
     }
 
-    const render: Props<PostData>["render"] = (data, i, onDelete) => (
-        // Uses react context to sync upvote info bewtween preview and snippet
-        <VoteCtxHandler key={data.id} post={data}>
-            <div className="mb-2">
-                <Post data={data} onDelete={() => onDelete(i)} setPreview={setPreviewPost} />
-            </div>
-            {previewPostID == data.id && (
-                <Popup onClose={onClose}>
-                    <Post data={data} onDelete={() => onDelete(i).then(history.back)} />
-                    <CommentFeed postID={data.id} thread={data.thread} />
-                </Popup>
-            )}
-        </VoteCtxHandler>
+    // Uses react context to sync upvote info bewtween preview and snippet
+    return (
+        <div>
+            <SortSelect sort={sort} updateSort={updateSort} />
+            {items.map((data, i) => (
+                <VoteCtxHandler key={data.id} post={data}>
+                    <div className="mb-2">
+                        <Post
+                            data={data}
+                            onDelete={() => onDelete(i)}
+                            setPreview={setPreviewPost}
+                        />
+                    </div>
+                    {previewPostID == data.id && (
+                        <Popup onClose={onClose}>
+                            <Post data={data} onDelete={() => onDelete(i).then(history.back)} />
+                            <CommentFeed postID={data.id} thread={data.thread} />
+                        </Popup>
+                    )}
+                </VoteCtxHandler>
+            ))}
+        </div>
     );
-
-    return <Feed queryTemplate={queryTemplate} render={render} onHistoryPopState={onPopState} />;
 };
 
 interface CommentFeedProps {
@@ -192,17 +193,23 @@ interface CommentFeedProps {
 export const CommentFeed: React.FC<CommentFeedProps> = ({ postID, thread }) => {
     const user = useContext(UserContext);
 
-    const render: Props<CommentData>["render"] = (data, i, onDelete) => (
-        <Comment key={data.id} data={data} postID={postID} thread={thread} />
+    const { items, sort, updateSort } = useFeed<CommentData>(
+        collection(database, `/threads/${thread}/posts/${postID}/comments`)
     );
 
     return (
-        <div className="p-4 bg-white rounded mt-2">
-            {user && <CreateComment thread={thread} postID={postID} />}
-            <Feed
-                queryTemplate={collection(database, `/threads/${thread}/posts/${postID}/comments`)}
-                render={render}
-            />
+        <div className="p-4 bg-white rounded">
+            <SortSelect sort={sort} updateSort={updateSort} />
+            {user && (
+                <CreateComment
+                    thread={thread}
+                    postID={postID}
+                    onCreate={() => updateSort("latest", true)}
+                />
+            )}
+            {items.map((data) => (
+                <Comment key={data.id} data={data} postID={postID} thread={thread} />
+            ))}
         </div>
     );
 };

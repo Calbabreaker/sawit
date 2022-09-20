@@ -1,19 +1,19 @@
 import { useForm } from "react-hook-form";
-import { TextEditor } from "./TextEditor";
 import { FormStatus } from "./FormStatus";
 import { useEffect } from "react";
 
 interface Props {
     thread: string;
     postID: string;
+    onCreate: () => void;
 }
 
 interface FormValues extends Record<string, string> {
     content: string;
 }
 
-export const CreateComment: React.FC<Props> = ({ thread, postID }) => {
-    const { register, handleSubmit, formState, trigger, setValue } = useForm<FormValues>({
+export const CreateComment: React.FC<Props> = ({ thread, postID, onCreate }) => {
+    const { register, handleSubmit, formState, trigger, reset } = useForm<FormValues>({
         mode: "onChange",
     });
 
@@ -31,23 +31,28 @@ export const CreateComment: React.FC<Props> = ({ thread, postID }) => {
             throw console.error(data);
         }
 
-        alert("Sucess!");
+        onCreate();
     });
 
     useEffect(() => {
-        register("content", {
-            required: true,
-            maxLength: { value: 1000, message: "Content too long" },
-        });
+        if (formState.isSubmitSuccessful) {
+            setTimeout(reset, 5000);
+        }
+    }, [formState]);
+
+    useEffect(() => {
         trigger();
     }, []);
 
     return (
         <form onSubmit={createComment}>
-            <TextEditor
-                className="min-h-[8rem] mb-2"
+            <textarea
+                className="rounded px-4 py-2 border border-black focus:ring h-full w-full min-h-[8rem] mb-2"
                 placeholder="Comment"
-                onChange={(text) => setValue("content", text, { shouldValidate: true })}
+                {...register("content", {
+                    required: true,
+                    maxLength: { value: 1000, message: "Content too long" },
+                })}
             />
             <FormStatus formState={formState} buttonText="Create comment" buttonClass="mb-4" />
         </form>
