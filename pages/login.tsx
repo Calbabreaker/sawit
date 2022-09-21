@@ -29,17 +29,13 @@ export default function Login() {
     }
 
     return (
-        <div className="flex justify-center">
+        <div className="flex justify-center text-center">
             <MetaTags title="Sawit Login" />
             <div className="max-w-xl w-80 pt-16">
                 <h1 className="text-3xl mb-8">Log into your account</h1>
-                <button className="btn" onClick={() => signIn(googleProvider)}>
+                <button className="btn w-full" onClick={() => signIn(googleProvider)}>
                     <FontAwesomeIcon icon={faGoogle} className="w-4 my-auto mr-2" />
                     Log in with Google
-                </button>
-                {/* for testing only */}
-                <button className="btn" onClick={() => signInAnonymously(auth).then(redirect)}>
-                    Log in Anonymously
                 </button>
             </div>
         </div>

@@ -5,20 +5,28 @@ import { useEffect } from "react";
 interface Props {
     thread: string;
     postID: string;
-    onCreate: () => void;
+    onSubmit: (content: string) => void;
+    editOpts?: {
+        values: FormValues;
+        id: string;
+    };
 }
 
 interface FormValues extends Record<string, string> {
     content: string;
 }
 
-export const CreateComment: React.FC<Props> = ({ thread, postID, onCreate }) => {
+export const CreateComment: React.FC<Props> = ({ thread, postID, onSubmit, editOpts }) => {
     const { register, handleSubmit, formState, trigger, reset } = useForm<FormValues>({
         mode: "onChange",
+        defaultValues: editOpts?.values,
     });
 
     const createComment = handleSubmit(async (fields) => {
-        const res = await fetch(`/api/comment?thread=${thread}&post=${postID}`, {
+        let url = `/api/comment?thread=${thread}&post=${postID}`;
+        if (editOpts) url += `&comment=${editOpts.id}`;
+
+        const res = await fetch(url, {
             method: "PUT",
             headers: {
                 "Content-Type": "application/x-www-form-urlencoded",
@@ -26,12 +34,9 @@ export const CreateComment: React.FC<Props> = ({ thread, postID, onCreate }) => 
             body: new URLSearchParams(fields),
         });
 
-        const data = await res.text();
-        if (!res.ok) {
-            throw console.error(data);
-        }
+        if (!res.ok) throw console.error(await res.text());
 
-        onCreate();
+        onSubmit(fields.content);
     });
 
     useEffect(() => {
@@ -54,7 +59,7 @@ export const CreateComment: React.FC<Props> = ({ thread, postID, onCreate }) => 
                     maxLength: { value: 1000, message: "Content too long" },
                 })}
             />
-            <FormStatus formState={formState} buttonText="Create comment" buttonClass="mb-4" />
+            <FormStatus formState={formState} buttonText="Submit Comment" />
         </form>
     );
 };

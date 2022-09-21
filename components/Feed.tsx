@@ -13,27 +13,34 @@ import { useRouter } from "next/router";
 import { Post } from "./Post";
 import { CommentData, PostData } from "lib/types";
 import { Popup } from "./Popup";
-import { UserContext, VoteContext } from "lib/utils";
+import { UserContext } from "lib/utils";
 import { Comment } from "./Comment";
 import { CreateComment } from "./CreateComment";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faSpinner } from "@fortawesome/free-solid-svg-icons";
+import { VoteCtxHandler } from "./VoteCounter";
 
 interface UseFeedHook<T> {
     updateSort: (sort: string, pushState: boolean) => void;
-    onDelete: (i: number) => Promise<void>;
+    onDelete: (i: number) => void;
+    getMore: (startFresh: boolean) => void;
+    setItems: (items: T[]) => void;
     items: T[];
     sort: string;
+    isEnd: boolean;
 }
 
 function useFeed<T>(queryTemplate: Query, onHistoryPopState?: () => boolean): UseFeedHook<T> {
     const router = useRouter();
-    const [items, setPosts] = useState([]);
+    const [items, setItems] = useState([]);
     const [isEnd, setIsEnd] = useState(false);
     const [sort, setSort] = useState<string>();
     const loadingPosts = useRef(false);
     const lastSnapshot = useRef<DocumentSnapshot>();
 
     async function getMore(startFresh = false) {
-        if (loadingPosts.current || isEnd) return;
+        if (startFresh) setIsEnd(false);
+        else if (loadingPosts.current || isEnd) return;
         loadingPosts.current = true;
 
         const constraints = [getSortQuery(sort), limit(LIMIT)];
@@ -50,7 +57,7 @@ function useFeed<T>(queryTemplate: Query, onHistoryPopState?: () => boolean): Us
         }
 
         if (!startFresh) newItems.unshift(...items);
-        setPosts(newItems);
+        setItems(newItems);
         loadingPosts.current = false;
     }
 
@@ -66,23 +73,26 @@ function useFeed<T>(queryTemplate: Query, onHistoryPopState?: () => boolean): Us
     }, [items]);
 
     useEffect(() => {
-        updateSort(sort);
+        updateSort();
     }, []);
 
     useEffect(() => {
         getMore(true);
     }, [sort]);
 
-    async function onDelete(i: number) {
+    function onDelete(i: number) {
         const newItems = items.concat();
         newItems.splice(i, 1);
-        setPosts(newItems);
+        setItems(newItems);
     }
 
-    function updateSort(newSort: string, pushState = false) {
+    function updateSort(newSort?: string, pushState = false) {
+        if (!newSort) {
+            newSort = new URLSearchParams(location.search).get("sort") ?? "most";
+        }
+
         const newUrl = `${location.pathname}?sort=${newSort}`;
         if (pushState) history.pushState(history.state, undefined, newUrl);
-        setIsEnd(false);
         setSort(newSort);
     }
 
@@ -104,10 +114,10 @@ function useFeed<T>(queryTemplate: Query, onHistoryPopState?: () => boolean): Us
             // onHistoryPopState returns true to block
             if (onHistoryPopState()) return;
         }
-        updateSort(sort);
+        updateSort();
     }
 
-    return { updateSort, onDelete, items, sort };
+    return { updateSort, onDelete, items, sort, isEnd, getMore, setItems };
 }
 
 interface SortSelectProps {
@@ -133,6 +143,18 @@ const SortSelect: React.FC<SortSelectProps> = ({ sort, updateSort }) => {
     );
 };
 
+export const LoadingStatus: React.FC<{ isEnd: boolean }> = ({ isEnd }) => {
+    return (
+        <div className="text-center">
+            {isEnd ? (
+                <p className="text-gray-500">There is none left</p>
+            ) : (
+                <FontAwesomeIcon icon={faSpinner} className="mx-auto text-lg fa-spin" />
+            )}
+        </div>
+    );
+};
+
 interface PostFeedProps {
     queryTemplate: Query;
 }
@@ -144,7 +166,10 @@ export const PostFeed: React.FC<PostFeedProps> = ({ queryTemplate }) => {
         return postID != null;
     }
 
-    const { items, onDelete, sort, updateSort } = useFeed<PostData>(queryTemplate, onPopState);
+    const { items, onDelete, sort, updateSort, isEnd, setItems } = useFeed<PostData>(
+        queryTemplate,
+        onPopState
+    );
     const [previewPostID, setPreviewPostID] = useState<string>(undefined);
     const router = useRouter();
 
@@ -160,27 +185,43 @@ export const PostFeed: React.FC<PostFeedProps> = ({ queryTemplate }) => {
         setPreviewPostID(null);
     }
 
+    function onEdit(title: string, content: string, i: number) {
+        const newItems = items.slice();
+        newItems[i].title = title;
+        newItems[i].content = content;
+        setItems(newItems);
+    }
+
     // Uses react context to sync upvote info bewtween preview and snippet
     return (
         <div>
             <SortSelect sort={sort} updateSort={updateSort} />
             {items.map((data, i) => (
-                <VoteCtxHandler key={data.id} post={data}>
+                <VoteCtxHandler key={data.id} upvotes={data.upvotes}>
                     <div className="mb-2">
                         <Post
                             data={data}
                             onDelete={() => onDelete(i)}
                             setPreview={setPreviewPost}
+                            onEdit={(title, content) => onEdit(title, content, i)}
                         />
                     </div>
                     {previewPostID == data.id && (
                         <Popup onClose={onClose}>
-                            <Post data={data} onDelete={() => onDelete(i).then(history.back)} />
+                            <Post
+                                data={data}
+                                onDelete={() => {
+                                    onDelete(i);
+                                    history.back();
+                                }}
+                                onEdit={(title, content) => onEdit(title, content, i)}
+                            />
                             <CommentFeed postID={data.id} thread={data.thread} />
                         </Popup>
                     )}
                 </VoteCtxHandler>
             ))}
+            <LoadingStatus isEnd={isEnd} />
         </div>
     );
 };
@@ -193,42 +234,31 @@ interface CommentFeedProps {
 export const CommentFeed: React.FC<CommentFeedProps> = ({ postID, thread }) => {
     const user = useContext(UserContext);
 
-    const { items, sort, updateSort } = useFeed<CommentData>(
+    const { items, sort, updateSort, isEnd, onDelete, getMore } = useFeed<CommentData>(
         collection(database, `/threads/${thread}/posts/${postID}/comments`)
     );
+
+    function onCreate() {
+        if (sort == "latest") getMore(true);
+        else updateSort("latest", true);
+    }
 
     return (
         <div className="p-4 bg-white rounded">
             <SortSelect sort={sort} updateSort={updateSort} />
-            {user && (
-                <CreateComment
-                    thread={thread}
+            <div className="mb-4">
+                {user && <CreateComment thread={thread} postID={postID} onSubmit={onCreate} />}
+            </div>
+            {items.map((data, i) => (
+                <Comment
+                    key={data.id}
+                    data={data}
                     postID={postID}
-                    onCreate={() => updateSort("latest", true)}
+                    thread={thread}
+                    onDelete={() => onDelete(i)}
                 />
-            )}
-            {items.map((data) => (
-                <Comment key={data.id} data={data} postID={postID} thread={thread} />
             ))}
+            <LoadingStatus isEnd={isEnd} />
         </div>
-    );
-};
-
-interface VCHProps {
-    post: PostData;
-    children: JSX.Element[];
-}
-
-const VoteCtxHandler: React.FC<VCHProps> = ({ post, children }) => {
-    return (
-        <VoteContext.Provider
-            value={{
-                upvotesState: useState(post.upvotes),
-                voteChangeState: useState(undefined),
-                loadingState: useState(false),
-            }}
-        >
-            {children}
-        </VoteContext.Provider>
     );
 };

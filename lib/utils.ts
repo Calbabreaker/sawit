@@ -1,4 +1,4 @@
-import { createContext } from "react";
+import { createContext, useContext, useState } from "react";
 
 export interface IUserContext {
     uid: string;
@@ -14,3 +14,32 @@ export interface IVoteContext {
 }
 
 export const VoteContext = createContext<IVoteContext>(undefined);
+
+interface ItemOptionsHook {
+    deleting: boolean;
+    editing: boolean;
+    setEditing: (v: boolean) => void;
+    deletePost: (e: React.MouseEvent) => void;
+}
+
+export function useItemOptions(onDelete: () => void, itemDBPath: string): ItemOptionsHook {
+    const [deleting, setDeleting] = useState(false);
+    const [editing, setEditing] = useState(false);
+
+    async function deletePost(e: React.MouseEvent) {
+        e.stopPropagation();
+        if (confirm("Are you sure want to delete it?")) {
+            setDeleting(true);
+            const res = await fetch(itemDBPath, { method: "DELETE" });
+            if (!res.ok) {
+                setDeleting(false);
+                console.error(await res.text());
+                alert("Failed to delete!");
+            } else {
+                onDelete();
+            }
+        }
+    }
+
+    return { deleting, setEditing, editing, deletePost };
+}

@@ -11,8 +11,10 @@ export const Popup: React.FC<PopupProps> = ({ children, onClose }) => {
     useEffect(() => {
         // Prevent user from scrolling in the background
         const style = document.body.style;
-        style.overflow = "hidden";
-        return () => (style.overflow = null);
+        if (style.overflow != "hidden") {
+            style.overflow = "hidden";
+            return () => (style.overflow = null);
+        }
     }, []);
 
     return (

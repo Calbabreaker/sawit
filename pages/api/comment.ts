@@ -36,7 +36,7 @@ export default async function (req: NextApiRequest, res: NextApiResponse) {
         } else if (req.method == "DELETE") {
             const doc = await commentRef.get();
             if (doc.get("uid") != uid) throw "Not the owner";
-            await adminDatabase.recursiveDelete(commentRef);
+            commentRef.delete();
         } else throw "Invalid method";
 
         res.status(200).end();

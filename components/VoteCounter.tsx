@@ -10,7 +10,6 @@ interface Props {
     thread: string;
     postID: string;
     commentID?: string;
-    startingUpvotes: number;
 }
 
 function shortenLength(n: number): string {
@@ -29,13 +28,13 @@ function shortenLength(n: number): string {
     return `${nstr.substring(0, dp)}.${nstr.substring(dp, dp + 1)}${unit}`;
 }
 
-export const VoteCounter: React.FC<Props> = ({ thread, postID, commentID, startingUpvotes }) => {
+export const VoteCounter: React.FC<Props> = ({ thread, postID, commentID }) => {
     const userCtx = useContext(UserContext);
     const voteCtx = useContext(VoteContext);
 
-    const [upvotes, setUpvotes] = voteCtx?.upvotesState ?? useState(startingUpvotes);
-    const [voteChange, setVoteChange] = voteCtx?.voteChangeState ?? useState<number>(null);
-    const [loading, setLoading] = voteCtx?.loadingState ?? useState(false);
+    const [upvotes, setUpvotes] = voteCtx.upvotesState;
+    const [voteChange, setVoteChange] = voteCtx.voteChangeState;
+    const [loading, setLoading] = voteCtx.loadingState;
 
     async function getVoteDoc() {
         if (voteChange != null || loading) return;
@@ -49,7 +48,7 @@ export const VoteCounter: React.FC<Props> = ({ thread, postID, commentID, starti
             query(collection(database, `/users/${userCtx.uid}/votes`), whereClause)
         );
 
-        setVoteChange(voteSnapshot.docs[0]?.get("change") ?? 0);
+        setVoteChange(voteSnapshot.docs[0]?.get("change"));
         setLoading(false);
     }
 
@@ -60,8 +59,8 @@ export const VoteCounter: React.FC<Props> = ({ thread, postID, commentID, starti
 
     async function vote(e: React.MouseEvent, change: number) {
         e.stopPropagation();
-        if (!userCtx) return Router.push(`/login/?return=${Router.asPath}`);
         if (loading) return;
+        if (!userCtx) return Router.push(`/login/?return=${Router.asPath}`);
         setLoading(true);
 
         // Compute vote change here since server api can't
@@ -90,7 +89,7 @@ export const VoteCounter: React.FC<Props> = ({ thread, postID, commentID, starti
         setLoading(false);
     }
 
-    const arrowClass = `!block text-lg mx-auto px-1 border-transparent ${
+    const arrowClass = `!block text-lg mx-auto border-transparent my-auto px-1 ${
         !loading && "hover:bg-gray-400/40 hover:cursor-pointer"
     }`;
     const selectedClass = "text-blue-500";
@@ -108,7 +107,7 @@ export const VoteCounter: React.FC<Props> = ({ thread, postID, commentID, starti
                     className="text-base my-1 mx-auto fa-spin !block"
                 />
             ) : (
-                <div className={`text-center mx-auto`}>{shortenLength(upvotes)}</div>
+                <div className="text-center mx-0.5">{shortenLength(upvotes)}</div>
             )}
             <FontAwesomeIcon
                 icon={faArrowDown}
@@ -116,5 +115,24 @@ export const VoteCounter: React.FC<Props> = ({ thread, postID, commentID, starti
                 onClick={(e) => vote(e, -1)}
             />
         </>
+    );
+};
+
+interface VCHProps {
+    upvotes: number;
+    children: JSX.Element[] | JSX.Element;
+}
+
+export const VoteCtxHandler: React.FC<VCHProps> = ({ upvotes, children }) => {
+    return (
+        <VoteContext.Provider
+            value={{
+                upvotesState: useState(upvotes),
+                voteChangeState: useState(undefined),
+                loadingState: useState(false),
+            }}
+        >
+            {children}
+        </VoteContext.Provider>
     );
 };

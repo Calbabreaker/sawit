@@ -23,6 +23,8 @@ export default async function (req: NextApiRequest, res: NextApiResponse) {
                     if (doc.get("uid") != uid) throw "Not the owner";
                     transaction.update(postRef, { title, content });
                 });
+
+                res.status(200).end();
             } else {
                 const userDoc = await adminDatabase.doc(`/users/${uid}`).get();
                 const doc = await adminDatabase.collection(baseDBPath).add({
@@ -35,20 +37,14 @@ export default async function (req: NextApiRequest, res: NextApiResponse) {
                     upvotes: 0,
                 });
 
-                return res.status(200).end(doc.id);
+                res.status(200).end(doc.id);
             }
         } else if (req.method == "DELETE") {
             const doc = await postRef.get();
             if (doc.get("uid") != uid) throw "Not the owner";
             await adminDatabase.recursiveDelete(postRef);
-            const voteSnapshot = await adminDatabase
-                .collectionGroup("votes")
-                .where("threadPost", "==", thread + post)
-                .get();
-            await Promise.all(voteSnapshot.docs.map((doc) => doc.ref.delete));
+            res.status(200).end();
         } else throw "Invalid method";
-
-        res.status(200).end();
     } catch (err) {
         res.status(400).end(err.message || err);
     }

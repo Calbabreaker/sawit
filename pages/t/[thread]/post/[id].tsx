@@ -1,6 +1,7 @@
 import { CommentFeed } from "components/Feed";
 import { MetaTags } from "components/MetaTags";
 import { Post } from "components/Post";
+import { VoteCtxHandler } from "components/VoteCounter";
 import { getDoc, doc } from "firebase/firestore";
 import { database, snapshotToJSON } from "lib/firebase";
 import { PostData } from "lib/types";
@@ -21,10 +22,17 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ params }) 
 };
 
 export default function PostPage({ post }: Props) {
+    function onEdit(title: string, content: string) {
+        post.title = title;
+        post.content = content;
+    }
+
     return (
         <>
             <MetaTags title={post.title} description={post.content} />
-            <Post data={post} onDelete={() => Router.push("/")}></Post>
+            <VoteCtxHandler upvotes={post.upvotes}>
+                <Post data={post} onDelete={() => Router.push("/")} onEdit={onEdit} />
+            </VoteCtxHandler>
             <CommentFeed postID={post.id} thread={post.thread} />
         </>
     );

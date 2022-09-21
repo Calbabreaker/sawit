@@ -1,13 +1,17 @@
 import Router from "next/router";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { TextEditor } from "./TextEditor";
 import { FormStatus } from "./FormStatus";
 import { faMarkdown } from "@fortawesome/free-brands-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 interface Props {
     thread: string;
+    editOpts?: {
+        values: FormValues;
+        onSubmit: (title: string, content: string) => void;
+        id: string;
+    };
 }
 
 interface FormValues extends Record<string, string> {
@@ -15,14 +19,17 @@ interface FormValues extends Record<string, string> {
     content: string;
 }
 
-export const CreatePost: React.FC<Props> = ({ thread }) => {
-    const { register, handleSubmit, formState, trigger, setValue } = useForm<FormValues>({
+export const CreatePost: React.FC<Props> = ({ thread, editOpts }) => {
+    const { register, handleSubmit, formState, trigger } = useForm<FormValues>({
         mode: "onChange",
-        defaultValues: { content: "" },
+        defaultValues: editOpts?.values ?? { content: "" },
     });
 
     const createPost = handleSubmit(async (fields) => {
-        const res = await fetch(`/api/post?thread=${thread}`, {
+        let url = `/api/post?thread=${thread}`;
+        if (editOpts) url += `&post=${editOpts.id}`;
+
+        const res = await fetch(url, {
             method: "PUT",
             headers: {
                 "Content-Type": "application/x-www-form-urlencoded",
@@ -31,15 +38,13 @@ export const CreatePost: React.FC<Props> = ({ thread }) => {
         });
 
         const data = await res.text();
-        if (!res.ok) {
-            throw console.error(data);
-        }
+        if (!res.ok) throw console.error(data);
 
-        Router.push(`/t/${thread}/post/${data}`);
+        if (editOpts) editOpts.onSubmit(fields.title, fields.content);
+        else Router.push(`/t/${thread}/post/${data}`);
     });
 
     useEffect(() => {
-        register("content", { maxLength: { value: 10000, message: "Content too long" } });
         trigger();
     }, []);
 
@@ -61,12 +66,14 @@ export const CreatePost: React.FC<Props> = ({ thread }) => {
                 <FontAwesomeIcon className="mr-1" icon={faMarkdown} />
                 Markdown supported
             </a>
-            <TextEditor
-                className="min-h-[16rem] mb-2"
+            <textarea
+                className="rounded px-4 py-2 border border-black focus:ring h-full w-full min-h-[16rem] mb-2"
                 placeholder="Content (optional)"
-                onChange={(text) => setValue("content", text, { shouldValidate: true })}
+                {...register("content", {
+                    maxLength: { value: 10000, message: "Content too long" },
+                })}
             />
-            <FormStatus formState={formState} buttonText="Create new post" />
+            <FormStatus formState={formState} buttonText="Submit Post" />
         </form>
     );
 };

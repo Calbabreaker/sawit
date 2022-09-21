@@ -1,50 +1,48 @@
 import Link from "next/link";
 import { PostData } from "lib/types";
 import { VoteCounter } from "./VoteCounter";
-import { UserContext } from "lib/utils";
+import { useItemOptions, UserContext } from "lib/utils";
 import { useContext, useState } from "react";
 import { MarkdownViewer } from "./MarkdownViewer";
 import { format } from "timeago.js";
 import { useRouter } from "next/router";
+import { Popup } from "./Popup";
+import { CreatePost } from "./CreatePost";
 
 interface Props {
     data: PostData;
     onDelete: () => void;
+    onEdit: (title: string, content: string) => void;
     setPreview?: (post: PostData) => void;
 }
 
-export const Post: React.FC<Props> = ({ data, setPreview, onDelete }) => {
-    const { title, username, thread, upvotes, content = "", id, createdAt } = data;
-    const [deleting, setDeleting] = useState(false);
+export const Post: React.FC<Props> = ({ data, setPreview, onDelete, onEdit }) => {
+    const { title, username, thread, content, id, createdAt } = data;
     const user = useContext(UserContext);
     const router = useRouter();
-
-    async function deletePost(e: React.MouseEvent) {
-        e.stopPropagation();
-        setDeleting(true);
-        if (confirm("Are you sure want to delete it?")) {
-            const res = await fetch(`/api/post?thread=${thread}&post=${id}`, { method: "DELETE" });
-            if (!res.ok) {
-                setDeleting(false);
-                return alert("Failed to delete post!");
-            }
-
-            onDelete();
-        }
-    }
 
     function stopPropagation(e: React.MouseEvent) {
         e.stopPropagation();
     }
 
-    const hoverClass = setPreview ? "hover:border-gray-400 cursor-pointer" : "";
+    const { deleting, editing, setEditing, deletePost } = useItemOptions(
+        onDelete,
+        `/api/post?thread=${thread}&post=${id}`
+    );
+
+    const hoverClass = setPreview && !editing ? "hover:border-gray-400 cursor-pointer" : "";
+
     return (
         <div
             className={`flex bg-white rounded shadow border border-gray-300 ${hoverClass}`}
-            onClick={setPreview ? () => setPreview(data) : null}
+            onClick={() => {
+                if (setPreview && !editing) {
+                    setPreview(data);
+                }
+            }}
         >
             <div className="bg-blue-50 rounded p-2">
-                <VoteCounter startingUpvotes={upvotes} thread={thread} postID={id} />
+                <VoteCounter thread={thread} postID={id} />
             </div>
             <div className="p-2 w-full min-w-0">
                 <div className="text-gray-500 text-xs mb-1">
@@ -52,7 +50,7 @@ export const Post: React.FC<Props> = ({ data, setPreview, onDelete }) => {
                         <span className="mr-1">
                             <Link href={`/t/${thread}`}>
                                 <a
-                                    className="hover:underline mx-1 font-bold text-black"
+                                    className="hover:underline font-bold text-black mr-1"
                                     onClick={stopPropagation}
                                 >
                                     t/{thread}
@@ -75,9 +73,39 @@ export const Post: React.FC<Props> = ({ data, setPreview, onDelete }) => {
                     className={"my-2 " + (setPreview && "fade overflow-hidden max-h-80")}
                 />
                 {user?.username == username && (
-                    <button className="btn btn-small" onClick={deletePost} disabled={deleting}>
-                        Delete
-                    </button>
+                    <div>
+                        <button
+                            className="btn btn-small mr-2"
+                            onClick={deletePost}
+                            disabled={deleting}
+                        >
+                            Delete
+                        </button>
+                        <button
+                            className="btn btn-small"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                setEditing(true);
+                            }}
+                        >
+                            Edit
+                        </button>
+                    </div>
+                )}
+                {editing && (
+                    <Popup onClose={() => setEditing(false)}>
+                        <CreatePost
+                            thread={thread}
+                            editOpts={{
+                                values: { content, title },
+                                onSubmit: (title, content) => {
+                                    setEditing(false);
+                                    onEdit(title, content);
+                                },
+                                id,
+                            }}
+                        />
+                    </Popup>
                 )}
             </div>
         </div>
