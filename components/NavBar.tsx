@@ -1,10 +1,11 @@
 import { UserContext } from "lib/utils";
 import Link from "next/link";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { signOut } from "firebase/auth";
 import { auth } from "lib/firebase";
 import { useRouter } from "next/router";
 import { Logo } from "./Logo";
+import { Dropdown } from "./Dropdown";
 
 export const NavBar: React.FC = () => {
     const user = useContext(UserContext);
@@ -20,6 +21,8 @@ export const NavBar: React.FC = () => {
 
     const loginUrl =
         router.pathname == "/login" ? router.asPath : `/login/?return=${router.asPath}`;
+
+    const [dropDownVisible, setDropdownVisible] = useState(false);
 
     return (
         <nav className="bg-white shadow sticky top-0 w-full z-10">
@@ -38,13 +41,26 @@ export const NavBar: React.FC = () => {
                 <div className="my-auto flex">
                     {user?.username ? (
                         <>
-                            <Link href={`/u/${user.username}`}>
-                                <a className="hover:underline">{user.username}</a>
-                            </Link>
-                            <span className="mx-1">|</span>
-                            <button className="hover:underline" onClick={() => signOut(auth)}>
-                                Logout
+                            <button
+                                className="hover:underline"
+                                onClick={() => setDropdownVisible(!dropDownVisible)}
+                            >
+                                {user.username}
                             </button>
+                            <div
+                                className="absolute w-32 right-0 z-10 mt-8 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 text-gray-700 text-sm"
+                                hidden={dropDownVisible}
+                            >
+                                <Link href={`/u/${user.username}`}>
+                                    <a className="hover:underline block px-4 py-2">My profile</a>
+                                </Link>
+                                <button
+                                    className="hover:underline block px-4 py-2"
+                                    onClick={() => signOut(auth)}
+                                >
+                                    Logout
+                                </button>
+                            </div>
                         </>
                     ) : (
                         <Link href={loginUrl}>

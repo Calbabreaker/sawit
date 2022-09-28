@@ -18,7 +18,7 @@ export const Popup: React.FC<PopupProps> = ({ children, onClose }) => {
     }, []);
 
     return (
-        <div className="fixed top-0 left-0 bg-black/50 w-full h-full z-20 grid place-items-center overflow-y-auto overflow-x-hidden px-16 py-8">
+        <div className="fixed top-0 left-0 bg-black/60 w-full h-full z-20 grid place-items-center overflow-y-auto overflow-x-hidden px-8 py-8 md:px-16">
             <div className="w-full min-w-0 max-w-5xl z-30">
                 {onClose && (
                     <div className="bg-gray-900 text-white rounded-t-lg">
