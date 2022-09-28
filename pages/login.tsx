@@ -44,13 +44,13 @@ export default function Login() {
         try {
             await signInWithEmailAndPassword(auth, email, password);
         } catch (err) {
-            if (err.code == "auth/user-not-found") {
-                return setError("email", { message: "User not found" });
-            } else if (err.code == "auth/wrong-password") {
-                return setError("password", { message: "Password is incorrect" });
+            switch (err.code) {
+                case "auth/user-not-found":
+                    return setError("email", { message: "User not found" });
+                case "auth/wrong-password":
+                    return setError("password", { message: "Password is incorrect" });
+                default: throw err;
             }
-
-            throw err;
         }
         redirect();
     });

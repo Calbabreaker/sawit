@@ -16,7 +16,7 @@ interface FormValues {
 }
 
 export default function SignUp() {
-    const { register, handleSubmit, formState, watch } = useForm<FormValues>({
+    const { register, handleSubmit, formState, watch, setError } = useForm<FormValues>({
         mode: "onChange",
     });
 
@@ -29,7 +29,17 @@ export default function SignUp() {
     }
 
     const signUpSubmit = handleSubmit(async ({ email, password }) => {
-        await createUserWithEmailAndPassword(auth, email, password);
+        try {
+            await createUserWithEmailAndPassword(auth, email, password);
+        } catch (err)  {
+            if (err.code == "auth/email-already-in-use") {
+                return setError("email", { message: "Email is already in use" });
+            } else {
+                throw err;
+            }
+        }
+
+        
         redirect();
     });
 
