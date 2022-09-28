@@ -10,6 +10,7 @@ import { Popup } from "components/Popup";
 import { UsernameForm } from "components/UsernameForm";
 import { doc, getDoc } from "firebase/firestore";
 import "@fortawesome/fontawesome-svg-core/styles.css";
+import Head from "next/head";
 
 // Prevent fontawesome from adding its CSS since we did it manually above:
 import { config } from "@fortawesome/fontawesome-svg-core";
@@ -45,6 +46,9 @@ export default function MyApp({ Component, pageProps }: AppProps) {
 
     return (
         <UserContext.Provider value={userCtx}>
+            <Head>
+                <link rel="shortcut icon" href="/favicon.ico" />
+            </Head>
             {popupOpen && (
                 <Popup>
                     <UsernameForm setUsername={setUsername} />
