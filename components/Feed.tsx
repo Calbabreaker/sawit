@@ -172,16 +172,21 @@ export const PostFeed: React.FC<PostFeedProps> = ({ queryTemplate }) => {
     );
     const [previewPostID, setPreviewPostID] = useState<string>(undefined);
     const router = useRouter();
+    const titleBefore = useRef<string>();
 
     function setPreviewPost(post: PostData) {
         const newUrl = `/t/${post.thread}/post/${post.id}`;
         history.pushState({ previewPostID: post.id, prevState: history.state }, undefined, newUrl);
+
+        titleBefore.current = document.title;
         document.title = post.title;
+
         setPreviewPostID(post.id);
     }
 
     function onClose() {
         history.pushState(history.state.prevState, undefined, router.asPath);
+        document.title = titleBefore.current;
         setPreviewPostID(null);
     }
 
