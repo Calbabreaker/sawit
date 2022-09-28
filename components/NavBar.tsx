@@ -17,6 +17,9 @@ export const NavBar: React.FC = () => {
         location = `u/${username}`;
     } else if (router.pathname === "/") location = "Home";
 
+    const loginUrl =
+        router.pathname == "/login" ? router.asPath : `/login/?return=${router.asPath}`;
+
     return (
         <nav className="bg-white shadow sticky top-0 w-full z-10">
             <div className="px-4 py-2 mx-auto flex justify-between">
@@ -38,7 +41,7 @@ export const NavBar: React.FC = () => {
                             </button>
                         </>
                     ) : (
-                        <Link href={`/login/?return=${router.asPath}`}>
+                        <Link href={loginUrl}>
                             <a className="hover:underline">Login</a>
                         </Link>
                     )}
