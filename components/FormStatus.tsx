@@ -13,7 +13,9 @@ export const FormStatus = <T extends FieldValues>({
     buttonText,
     buttonClass = "",
 }: Props<T>) => {
-    const { isValid, isSubmitted, isSubmitting, isSubmitSuccessful, errors } = formState;
+    const { isValid, isSubmitted, isSubmitting, isSubmitSuccessful, errors, isDirty } = formState;
+
+    const error = Object.entries(errors).filter(([_, error]) => error.message)[0]?.[1];
 
     return (
         <>
@@ -27,14 +29,8 @@ export const FormStatus = <T extends FieldValues>({
             {isSubmitSuccessful && (
                 <FontAwesomeIcon icon={faCheck} className="text-blue-500 text-2xl ml-1 -mb-1" />
             )}
-            {!isValid && (
-                <ErrorText
-                    text={Object.entries(errors)
-                        .map(([_, error]) => error.message)
-                        .join(", ")}
-                />
-            )}
-            {isSubmitted && isValid && !isSubmitSuccessful && (
+            {!isValid && <ErrorText text={error?.message} />}
+            {isSubmitted && isValid && !isDirty && !isSubmitSuccessful && (
                 <ErrorText text={"Failed to send request"} />
             )}
             {isSubmitting && (

@@ -18,6 +18,10 @@
     .btn-small {
         @apply px-2 py-1 text-xs;
     }
+
+    .input {
+        @apply rounded px-4 py-2 border border-black focus:ring w-full;
+    }
 }
 
 body {

@@ -3,7 +3,7 @@ import "./globals.css";
 import { IUserContext, UserContext } from "lib/utils";
 import { onIdTokenChanged } from "firebase/auth";
 import { destroyCookie, setCookie } from "nookies";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { auth, database } from "lib/firebase";
 import type { AppProps } from "next/app";
 import { Popup } from "components/Popup";
@@ -39,7 +39,7 @@ export default function MyApp({ Component, pageProps }: AppProps) {
     }, [userCtx]);
 
     function setUsername(username: string) {
-        setUserCtx({ username, ...userCtx });
+        setUserCtx({ ...userCtx, username });
         setPopupOpen(false);
     }
 

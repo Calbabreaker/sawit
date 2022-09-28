@@ -26,5 +26,6 @@ export const adminDatabase = getFirestore();
 
 export async function verifyUser(userToken?: string): Promise<string> {
     if (!userToken) throw null;
-    return (await adminAuth.verifyIdToken(userToken)).uid;
+    const token = await adminAuth.verifyIdToken(userToken);
+    return token.uid;
 }

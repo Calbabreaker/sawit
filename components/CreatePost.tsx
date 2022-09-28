@@ -52,7 +52,7 @@ export const CreatePost: React.FC<Props> = ({ thread, editOpts }) => {
         <form className="bg-white p-4 shadow rounded" onSubmit={createPost}>
             <input
                 placeholder="Title of post"
-                className="rounded px-4 py-2 border border-black focus:ring w-full"
+                className="input"
                 {...register("title", {
                     required: "Title required",
                     maxLength: { value: 100, message: "Title too long" },
@@ -67,7 +67,7 @@ export const CreatePost: React.FC<Props> = ({ thread, editOpts }) => {
                 Markdown supported
             </a>
             <textarea
-                className="rounded px-4 py-2 border border-black focus:ring h-full w-full min-h-[16rem] mb-2"
+                className="input min-h-[16rem] mb-2"
                 placeholder="Content (optional)"
                 {...register("content", {
                     maxLength: { value: 10000, message: "Content too long" },

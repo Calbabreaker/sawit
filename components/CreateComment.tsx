@@ -52,7 +52,7 @@ export const CreateComment: React.FC<Props> = ({ thread, postID, onSubmit, editO
     return (
         <form onSubmit={createComment}>
             <textarea
-                className="rounded px-4 py-2 border border-black focus:ring h-full w-full min-h-[8rem] mb-2"
+                className="input min-h-[8rem] mb-2"
                 placeholder="Comment"
                 {...register("content", {
                     required: true,

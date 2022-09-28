@@ -24,6 +24,7 @@ export const UsernameForm: React.FC<Props> = ({ setUsername }) => {
         if (await getDocByName("users", username)) {
             return setError("username", { message: "Username is already taken" });
         }
+
         const ref = doc(database, "users", uid);
         await setDoc(ref, {
             name: username,
@@ -44,7 +45,7 @@ export const UsernameForm: React.FC<Props> = ({ setUsername }) => {
                 className="w-full p-2 border-gray-600 border rounded"
                 placeholder="Username"
                 {...register("username", {
-                    required: "Username must be greater than 3 characters",
+                    required: true,
                     minLength: {
                         value: 3,
                         message: "Username must be greater than 3 characters",
