@@ -3,7 +3,7 @@ import { PostData } from "lib/types";
 import { VoteCounter } from "./VoteCounter";
 import { useItemOptions, UserContext } from "lib/utils";
 import { useContext, useState } from "react";
-import { MarkdownViewer } from "./MarkdownViewer";
+import { MarkdownViewer } from "./Markdown";
 import { format } from "timeago.js";
 import { useRouter } from "next/router";
 import { Popup } from "./Popup";

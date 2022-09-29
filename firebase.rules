@@ -15,7 +15,8 @@ service cloud.firestore {
 
         match /users/{userID} {
             allow read;
-            allow create: if isValidUserData(userID);
+            allow create: if hasValidUserData(userID);
+            allow update: if diffKeys().hasOnly(["description"]) && hasValidUserData(userID);
 
             match /votes/{voteID} {
                 allow read: if request.auth.uid == userID;
@@ -26,19 +27,28 @@ service cloud.firestore {
             allow read;
         }
 
-        function isValidUserData(userId) {
-            let isOwner = request.auth.uid == userId;
-            let isNow = request.time == request.resource.data.createdAt;
+        function diffKeys() {
+            return request.resource.data.diff(resource.data).affectedKeys();
+        }
+
+        function hasValidUserData(userID) {
+            let isOwner = request.auth.uid == userID;
             let isValidDescription = request.resource.data.description.size() < 10000;
+            
+            return isOwner && isValidDescription;
+        }
+
+        function canCreateUser(userID) {
+            let isNow = request.time == request.resource.data.createdAt;
             let username = request.resource.data.name;
 
-            return isOwner && isNow && isValidDescription && isValidUsername(username);  
+            return isNow && isValidUserData(userID) && isValidUsername(username);  
         }
 
         function isValidUsername(value) {
             let username = value.lower();
             let isValidLength = username.size() >= 3 && username.size() <= 24;
-            let hasValidChars = !username.matches('[^\\w-]');
+            let hasValidChars = !username.matches("[^\\w-]");
 
             return isValidLength && hasValidChars;
         }

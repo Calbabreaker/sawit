@@ -1,4 +1,4 @@
-import { googleProvider, auth } from "lib/firebase";
+import { googleProvider, auth, EMAIL_REGEX } from "lib/firebase";
 import { AuthProvider, signInWithPopup, createUserWithEmailAndPassword } from "firebase/auth";
 import { faGoogle } from "@fortawesome/free-brands-svg-icons";
 import Router from "next/router";
@@ -7,7 +7,9 @@ import { MetaTags } from "components/MetaTags";
 import { useForm } from "react-hook-form";
 import { FormStatus } from "components/FormStatus";
 import Link from "next/link";
-export { getServerSideProps } from "./login";
+import { makeRedirectSSR } from "lib/utils";
+
+export const getServerSideProps = makeRedirectSSR(false);
 
 interface FormValues {
     email: string;
@@ -60,7 +62,7 @@ export default function SignUp() {
                         className="input mb-2"
                         {...register("email", {
                             required: true,
-                            pattern: { value: /\S+@\w+\.\w+$/i, message: "Invalid email" },
+                            pattern: { value: EMAIL_REGEX, message: "Invalid email" },
                         })}
                     />
                     <input
@@ -85,7 +87,7 @@ export default function SignUp() {
                         type="password"
                         {...register("confirmPassword", {
                             required: true,
-                            validate: (val: string) => {
+                            validate: (val) => {
                                 if (watch("password") != val) {
                                     return "Passwords do not match";
                                 }

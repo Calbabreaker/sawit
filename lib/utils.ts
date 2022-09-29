@@ -1,3 +1,4 @@
+import { GetServerSideProps } from "next";
 import { createContext, useContext, useState } from "react";
 
 export interface IUserContext {
@@ -42,4 +43,22 @@ export function useItemOptions(onDelete: () => void, itemDBPath: string): ItemOp
     }
 
     return { deleting, setEditing, editing, deletePost };
+}
+
+export function makeRedirectSSR(requireAuth: boolean): GetServerSideProps {
+    return async ({ req, query }) => {
+        const isLoggedIn = Boolean(req.cookies.userToken);
+
+        if (requireAuth ? !isLoggedIn : isLoggedIn) {
+            const returnURL = (query.return as string) || "/";
+            return {
+                redirect: {
+                    permanent: false,
+                    destination: requireAuth ? "/login" : returnURL,
+                },
+            };
+        } else {
+            return { props: {} };
+        }
+    };
 }

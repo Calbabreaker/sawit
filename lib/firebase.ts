@@ -14,7 +14,9 @@ import {
 } from "firebase/firestore";
 import { DataType } from "./types";
 
-// Put your own firebase project config here
+// ---------------------------------------------
+// | Put your own firebase project config here |
+// ---------------------------------------------
 export const FIREBASE_CONFIG = {
     apiKey: "AIzaSyB6K1CvQAIP_l_H6jqzY4_HzDwfpFxY0N0",
     authDomain: "sawit-692ca.firebaseapp.com",
@@ -55,6 +57,8 @@ export async function getDocByName(
 }
 
 export const LIMIT = 10;
+
+export const EMAIL_REGEX = /\S+@\w+\.\w+$/i;
 
 export function getSortQuery(sort?: string): QueryConstraint {
     switch (sort) {

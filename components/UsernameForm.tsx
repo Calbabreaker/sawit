@@ -29,7 +29,7 @@ export const UsernameForm: React.FC<Props> = ({ setUsername }) => {
         await setDoc(ref, {
             name: username,
             createdAt: serverTimestamp(),
-            description: "",
+            description: "My description",
         });
         setUsername(username);
     });

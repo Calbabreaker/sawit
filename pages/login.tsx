@@ -1,4 +1,4 @@
-import { googleProvider, auth } from "lib/firebase";
+import { googleProvider, auth, EMAIL_REGEX } from "lib/firebase";
 import { AuthProvider, signInWithPopup, signInWithEmailAndPassword } from "firebase/auth";
 import { GetServerSideProps } from "next";
 import { faGoogle } from "@fortawesome/free-brands-svg-icons";
@@ -8,19 +8,9 @@ import { MetaTags } from "components/MetaTags";
 import { useForm } from "react-hook-form";
 import { FormStatus } from "components/FormStatus";
 import Link from "next/link";
+import { makeRedirectSSR } from "lib/utils";
 
-export const getServerSideProps: GetServerSideProps = async ({ req, query }) => {
-    if (req.cookies.userToken) {
-        return {
-            redirect: {
-                permanent: false,
-                destination: (query.return as string) || "/",
-            },
-        };
-    } else {
-        return { props: {} };
-    }
-};
+export const getServerSideProps = makeRedirectSSR(false);
 
 interface FormValues {
     email: string;
@@ -72,7 +62,7 @@ export default function Login() {
                         className="input mb-2"
                         {...register("email", {
                             required: true,
-                            pattern: { value: /^\S+@\S+$/i, message: "Invalid email" },
+                            pattern: { value: EMAIL_REGEX, message: "Invalid email" },
                         })}
                     />
                     <input
@@ -81,10 +71,6 @@ export default function Login() {
                         type="password"
                         {...register("password", {
                             required: true,
-                            maxLength: {
-                                value: 256,
-                                message: "Password must be less than 256 characters",
-                            },
                         })}
                     />
                     <FormStatus

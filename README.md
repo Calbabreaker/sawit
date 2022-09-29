@@ -18,6 +18,8 @@ CLIENT_EMAIL=
 PROJECT_ID=
 ```
 
+8. Start the server and create any indexes it says to.
+
 ## Developing
 
 Install [pnpm](https://pnpm.io/) then install dependencies:

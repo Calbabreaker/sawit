@@ -5,7 +5,6 @@ import { signOut } from "firebase/auth";
 import { auth } from "lib/firebase";
 import { useRouter } from "next/router";
 import { Logo } from "./Logo";
-import { Dropdown } from "./Dropdown";
 
 export const NavBar: React.FC = () => {
     const user = useContext(UserContext);

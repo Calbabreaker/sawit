@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import { FormStatus } from "./FormStatus";
 import { faMarkdown } from "@fortawesome/free-brands-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { MarkdownSupported } from "./Markdown";
 
 interface Props {
     thread: string;
@@ -52,20 +53,13 @@ export const CreatePost: React.FC<Props> = ({ thread, editOpts }) => {
         <form className="bg-white p-4 shadow rounded" onSubmit={createPost}>
             <input
                 placeholder="Title of post"
-                className="input"
+                className="input mb-2"
                 {...register("title", {
                     required: "Title required",
                     maxLength: { value: 100, message: "Title too long" },
                 })}
             />
-            <a
-                href="https://docs.github.com/en/articles/basic-writing-and-formatting-syntax"
-                target="_blank"
-                className="text-gray-400 block hover:underline mt-2"
-            >
-                <FontAwesomeIcon className="mr-1" icon={faMarkdown} />
-                Markdown supported
-            </a>
+            <MarkdownSupported />
             <textarea
                 className="input min-h-[16rem] mb-2"
                 placeholder="Content (optional)"
