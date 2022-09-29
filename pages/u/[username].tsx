@@ -39,8 +39,8 @@ export default function User({ user }: Props) {
             <h1 className="text-2xl">User {user.name}</h1>
             <div className="mb-4">
                 <MarkdownViewer text={user.description} />
-                {userCtx && (
-                    <button className="btn mt-2" onClick={() => setEditing(true)}>
+                {userCtx?.uid == user.id && (
+                    <button className="btn btn-small mt-2" onClick={() => setEditing(true)}>
                         Edit Description
                     </button>
                 )}
