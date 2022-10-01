@@ -18,9 +18,6 @@ export const NavBar: React.FC = () => {
         location = `u/${username}`;
     } else if (router.pathname === "/") location = "Home";
 
-    const loginUrl =
-        router.pathname == "/login" ? router.asPath : `/login/?return=${router.asPath}`;
-
     const [dropDownVisible, setDropdownVisible] = useState(false);
 
     return (
@@ -48,7 +45,12 @@ export const NavBar: React.FC = () => {
                             </button>
                         </>
                     ) : (
-                        <Link href={loginUrl}>
+                        <Link
+                            href={{
+                                pathname: "/login",
+                                query: { return: router.query.return || router.asPath },
+                            }}
+                        >
                             <a className="hover:underline">Login</a>
                         </Link>
                     )}

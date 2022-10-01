@@ -1,8 +1,7 @@
 import { googleProvider, auth, EMAIL_REGEX } from "lib/firebase";
 import { AuthProvider, signInWithPopup, signInWithEmailAndPassword } from "firebase/auth";
-import { GetServerSideProps } from "next";
 import { faGoogle } from "@fortawesome/free-brands-svg-icons";
-import Router from "next/router";
+import { useRouter } from "next/router";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { MetaTags } from "components/MetaTags";
 import { useForm } from "react-hook-form";
@@ -21,9 +20,10 @@ export default function Login() {
     const { register, handleSubmit, formState, setError } = useForm<FormValues>({
         mode: "onChange",
     });
+    const router = useRouter();
 
     function redirect() {
-        Router.push((Router.query.return as string) || "/");
+        router.push((router.query.return as string) || "/");
     }
 
     function login(provider: AuthProvider) {
@@ -39,7 +39,8 @@ export default function Login() {
                     return setError("email", { message: "User not found" });
                 case "auth/wrong-password":
                     return setError("password", { message: "Password is incorrect" });
-                default: throw err;
+                default:
+                    throw err;
             }
         }
         redirect();
@@ -81,7 +82,7 @@ export default function Login() {
                 </form>
                 <div className="mt-2 text-gray-500">
                     Don't have an account?
-                    <Link href="/signup">
+                    <Link href={{ pathname: `/signup`, query: router.query }}>
                         <a className="mx-2 text-blue-500 hover:underline">Sign Up</a>
                     </Link>
                 </div>

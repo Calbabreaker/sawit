@@ -1,5 +1,6 @@
 import { GetServerSideProps } from "next";
-import { createContext, useContext, useState } from "react";
+import { NextRouter } from "next/router";
+import { createContext, useState } from "react";
 
 export interface IUserContext {
     uid: string;

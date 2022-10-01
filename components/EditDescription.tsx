@@ -18,7 +18,7 @@ interface FormValues extends Record<string, string> {
 export const EditDescription: React.FC<Props> = ({ description, onEdit }) => {
     const userCtx = useContext(UserContext);
 
-    const { register, handleSubmit, formState, trigger, reset } = useForm<FormValues>({
+    const { register, handleSubmit, formState, trigger } = useForm<FormValues>({
         mode: "onChange",
         defaultValues: { description },
     });

@@ -1,7 +1,7 @@
 import { googleProvider, auth, EMAIL_REGEX } from "lib/firebase";
 import { AuthProvider, signInWithPopup, createUserWithEmailAndPassword } from "firebase/auth";
 import { faGoogle } from "@fortawesome/free-brands-svg-icons";
-import Router from "next/router";
+import { useRouter } from "next/router";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { MetaTags } from "components/MetaTags";
 import { useForm } from "react-hook-form";
@@ -21,9 +21,10 @@ export default function SignUp() {
     const { register, handleSubmit, formState, watch, setError } = useForm<FormValues>({
         mode: "onChange",
     });
+    const router = useRouter();
 
     function redirect() {
-        Router.push((Router.query.return as string) || "/");
+        router.push((router.query.return as string) || "/");
     }
 
     function signup(provider: AuthProvider) {
@@ -33,7 +34,7 @@ export default function SignUp() {
     const signUpSubmit = handleSubmit(async ({ email, password }) => {
         try {
             await createUserWithEmailAndPassword(auth, email, password);
-        } catch (err)  {
+        } catch (err) {
             if (err.code == "auth/email-already-in-use") {
                 return setError("email", { message: "Email is already in use" });
             } else {
@@ -41,7 +42,6 @@ export default function SignUp() {
             }
         }
 
-        
         redirect();
     });
 
@@ -52,7 +52,7 @@ export default function SignUp() {
             <div className="max-w-xl w-80">
                 <button className="btn w-full" onClick={() => signup(googleProvider)}>
                     <FontAwesomeIcon icon={faGoogle} className="w-4 my-auto mr-2" />
-                    Sign up in with Google
+                    Sign up with Google
                 </button>
 
                 <hr className="bg-slate-400 h-0.5 my-6 w-[95%] text-center mx-auto" />
@@ -102,7 +102,7 @@ export default function SignUp() {
                 </form>
                 <div className="mt-2 text-gray-500">
                     Already have an account?
-                    <Link href="/login">
+                    <Link href={{ pathname: `/login`, query: router.query }}>
                         <a className="mx-2 text-blue-500 hover:underline">Login</a>
                     </Link>
                 </div>

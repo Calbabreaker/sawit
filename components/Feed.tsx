@@ -24,7 +24,6 @@ interface UseFeedHook<T> {
     updateSort: (sort: string, pushState: boolean) => void;
     onDelete: (i: number) => void;
     getMore: (startFresh: boolean) => void;
-    setItems: (items: T[]) => void;
     items: T[];
     sort: string;
     isEnd: boolean;
@@ -117,7 +116,7 @@ function useFeed<T>(queryTemplate: Query, onHistoryPopState?: () => boolean): Us
         updateSort();
     }
 
-    return { updateSort, onDelete, items, sort, isEnd, getMore, setItems };
+    return { updateSort, onDelete, items, sort, isEnd, getMore};
 }
 
 interface SortSelectProps {
@@ -166,7 +165,7 @@ export const PostFeed: React.FC<PostFeedProps> = ({ queryTemplate }) => {
         return postID != null;
     }
 
-    const { items, onDelete, sort, updateSort, isEnd, setItems } = useFeed<PostData>(
+    const { items, onDelete, sort, updateSort, isEnd} = useFeed<PostData>(
         queryTemplate,
         onPopState
     );
@@ -190,13 +189,6 @@ export const PostFeed: React.FC<PostFeedProps> = ({ queryTemplate }) => {
         setPreviewPostID(null);
     }
 
-    function onEdit(title: string, content: string, i: number) {
-        const newItems = items.slice();
-        newItems[i].title = title;
-        newItems[i].content = content;
-        setItems(newItems);
-    }
-
     // Uses react context to sync upvote info bewtween preview and snippet
     return (
         <div>
@@ -208,7 +200,7 @@ export const PostFeed: React.FC<PostFeedProps> = ({ queryTemplate }) => {
                             data={data}
                             onDelete={() => onDelete(i)}
                             setPreview={setPreviewPost}
-                            onEdit={(title, content) => onEdit(title, content, i)}
+                            onEdit={(content) => data.content = content}
                         />
                     </div>
                     {previewPostID == data.id && (
@@ -219,7 +211,7 @@ export const PostFeed: React.FC<PostFeedProps> = ({ queryTemplate }) => {
                                     onDelete(i);
                                     history.back();
                                 }}
-                                onEdit={(title, content) => onEdit(title, content, i)}
+                                onEdit={(content) => data.content = content}
                             />
                             <CommentFeed postID={data.id} thread={data.thread} />
                         </Popup>

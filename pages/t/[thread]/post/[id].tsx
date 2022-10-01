@@ -22,16 +22,15 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ params }) 
 };
 
 export default function PostPage({ post }: Props) {
-    function onEdit(title: string, content: string) {
-        post.title = title;
-        post.content = content;
-    }
-
     return (
         <>
             <MetaTags title={post.title} description={post.content} />
             <VoteCtxHandler upvotes={post.upvotes}>
-                <Post data={post} onDelete={() => Router.push("/")} onEdit={onEdit} />
+                <Post
+                    data={post}
+                    onDelete={() => Router.push("/")}
+                    onEdit={(content) => (post.content = content)}
+                />
             </VoteCtxHandler>
             <CommentFeed postID={post.id} thread={post.thread} />
         </>
