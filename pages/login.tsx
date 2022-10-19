@@ -7,9 +7,9 @@ import { MetaTags } from "components/MetaTags";
 import { useForm } from "react-hook-form";
 import { FormStatus } from "components/FormStatus";
 import Link from "next/link";
-import { makeRedirectSSR } from "lib/utils";
+import { makeAuthRedirectSSR } from "lib/utils";
 
-export const getServerSideProps = makeRedirectSSR(false);
+export const getServerSideProps = makeAuthRedirectSSR(false);
 
 interface FormValues {
     email: string;

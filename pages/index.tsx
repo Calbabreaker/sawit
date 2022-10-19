@@ -16,7 +16,7 @@ export default function Home() {
                         <a className="m-1 link">t/hello</a>
                     </Link>
                     or
-                    <Link href="/create">
+                    <Link href="/new">
                         <a className="ml-1 link">create a new one</a>
                     </Link>
                     .

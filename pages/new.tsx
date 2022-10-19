@@ -2,12 +2,12 @@ import { FormStatus } from "components/FormStatus";
 import { MetaTags } from "components/MetaTags";
 import { doc, getDoc } from "firebase/firestore";
 import { database } from "lib/firebase";
-import { makeRedirectSSR } from "lib/utils";
+import { makeAuthRedirectSSR } from "lib/utils";
 import Router from "next/router";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 
-export const getServerSideProps = makeRedirectSSR(true);
+export const getServerSideProps = makeAuthRedirectSSR(true);
 
 interface FormValues {
     name: string;

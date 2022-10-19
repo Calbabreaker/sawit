@@ -1,5 +1,4 @@
 import { GetServerSideProps } from "next";
-import { NextRouter } from "next/router";
 import { createContext, useState } from "react";
 
 export interface IUserContext {
@@ -46,8 +45,12 @@ export function useItemOptions(onDelete: () => void, itemDBPath: string): ItemOp
     return { deleting, setEditing, editing, deletePost };
 }
 
-export function makeRedirectSSR(requireAuth: boolean): GetServerSideProps {
-    return async ({ req, query }) => {
+export function makeAuthRedirectSSR(
+    requireAuth: boolean,
+    onOK?: GetServerSideProps
+): GetServerSideProps {
+    return async (ctx) => {
+        const { req, query, resolvedUrl } = ctx;
         const isLoggedIn = Boolean(req.cookies.userToken);
 
         if (requireAuth ? !isLoggedIn : isLoggedIn) {
@@ -55,11 +58,12 @@ export function makeRedirectSSR(requireAuth: boolean): GetServerSideProps {
             return {
                 redirect: {
                     permanent: false,
-                    destination: requireAuth ? "/login" : returnURL,
+                    destination: requireAuth ? `/login?return=${resolvedUrl}` : returnURL,
                 },
             };
         } else {
-            return { props: {} };
+            if (onOK) return onOK(ctx);
+            else return { props: {} };
         }
     };
 }
