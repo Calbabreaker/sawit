@@ -40,3 +40,17 @@ export const Popup: React.FC<PopupProps> = ({ children, onClose }) => {
         </div>
     );
 };
+
+interface CenterProps {
+    children: JSX.Element[];
+}
+
+export const CenterModal: React.FC<CenterProps> = ({ children }) => {
+    return (
+        <div className="flex justify-center">
+            <div className="bg-white p-4 rounded shadow mb-4 w-fit text-sm text-center flex flex-col">
+                {children}
+            </div>
+        </div>
+    );
+};

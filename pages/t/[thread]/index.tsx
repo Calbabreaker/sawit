@@ -5,6 +5,10 @@ import { database, snapshotToJSON } from "lib/firebase";
 import { ThreadData } from "lib/types";
 import Link from "next/link";
 import { GetServerSideProps } from "next/types";
+import { CenterModal } from "components/Modals";
+import { useContext } from "react";
+import { UserContext } from "lib/utils";
+import { EditDescriptionButton } from "components/EditDescription";
 
 export interface Props {
     thread: ThreadData;
@@ -21,17 +25,22 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ params }) 
 };
 
 export default function Thread({ thread }: Props) {
+    const userCtx = useContext(UserContext);
+
     return (
         <>
             <MetaTags title={`t/${thread.id}`} description={thread.description} />
-            <div className="mb-8">
-                <h1 className="text-2xl">Welcome to t/{thread.id}!</h1>
-                <p className="mb-4">{thread.description}</p>
+            <CenterModal>
+                <h1 className="text-xl mb-2">Welcome to t/{thread.id}!</h1>
+                <p>{thread.description}</p>
+                {userCtx?.uid == thread.ownerUID && (
+                    <EditDescriptionButton docPath="/threads" data={thread} />
+                )}
                 <Link href={`${thread.id}/create`}>
-                    <a className="btn btn-primary">Create Post</a>
+                    <button className="btn btn-primary mt-2">Create Post</button>
                 </Link>
-            </div>
-            <PostFeed queryTemplate={collection(database, `/threads/${thread?.id || "s"}/posts`)} />
+            </CenterModal>
+            <PostFeed queryTemplate={collection(database, `/threads/${thread.id}/posts`)} />
         </>
     );
 }

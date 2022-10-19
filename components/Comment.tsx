@@ -1,10 +1,10 @@
 import { CommentData } from "lib/types";
 import { useItemOptions, UserContext } from "lib/utils";
 import Link from "next/link";
-import { useContext, useState } from "react";
+import { useContext} from "react";
 import { format } from "timeago.js";
 import { CreateComment } from "./CreateComment";
-import { Popup } from "./Popup";
+import { Popup } from "./Modals";
 import { VoteCounter, VoteCtxHandler } from "./VoteCounter";
 
 interface Props {

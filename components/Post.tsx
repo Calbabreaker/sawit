@@ -6,7 +6,7 @@ import { useContext} from "react";
 import { MarkdownViewer } from "./Markdown";
 import { format } from "timeago.js";
 import { useRouter } from "next/router";
-import { Popup } from "./Popup";
+import { Popup } from "./Modals";
 import { CreatePost } from "./CreatePost";
 
 interface Props {

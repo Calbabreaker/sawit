@@ -12,7 +12,7 @@ import { getSortQuery, LIMIT, snapshotToJSON, database } from "lib/firebase";
 import { useRouter } from "next/router";
 import { Post } from "./Post";
 import { CommentData, PostData } from "lib/types";
-import { Popup } from "./Popup";
+import { Popup } from "./Modals";
 import { UserContext } from "lib/utils";
 import { Comment } from "./Comment";
 import { CreateComment } from "./CreateComment";

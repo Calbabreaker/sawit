@@ -6,7 +6,7 @@ import { destroyCookie, setCookie } from "nookies";
 import { useEffect, useState } from "react";
 import { auth, database } from "lib/firebase";
 import type { AppProps } from "next/app";
-import { Popup } from "components/Popup";
+import { Popup } from "components/Modals";
 import { UsernameForm } from "components/UsernameForm";
 import { doc, getDoc } from "firebase/firestore";
 import "@fortawesome/fontawesome-svg-core/styles.css";

@@ -1,6 +1,5 @@
-create thread page
 full text search
-ssr the posts feed
-replies to comments
-edit user description
+moderator actions
+replies to comments?
+ssr the posts feed?
 user icons?

@@ -103,7 +103,7 @@ export default function SignUp() {
                 <div className="mt-2 text-gray-500">
                     Already have an account?
                     <Link href={{ pathname: `/login`, query: router.query }}>
-                        <a className="mx-2 text-blue-500 hover:underline">Login</a>
+                        <a className="link ml-2">Login</a>
                     </Link>
                 </div>
             </div>
