@@ -1,9 +1,8 @@
 import { useForm } from "react-hook-form";
 import { FormStatus } from "./FormStatus";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { updateDoc, doc } from "firebase/firestore";
 import { MarkdownSupported } from "./Markdown";
-import { Popup } from "./Modals";
 import { database } from "lib/firebase";
 
 interface FormValues extends Record<string, string> {
@@ -12,15 +11,14 @@ interface FormValues extends Record<string, string> {
 
 interface EditProps {
     docPath: string;
-    data: any;
+    onEdit: (description: string) => void;
+    description: string;
 }
 
-export const EditDescriptionButton: React.FC<EditProps> = ({ docPath, data }) => {
-    const [editing, setEditing] = useState(false);
-
+export const EditDescription: React.FC<EditProps> = ({ docPath, onEdit, description }) => {
     const { register, handleSubmit, formState, trigger } = useForm<FormValues>({
         mode: "onChange",
-        defaultValues: { description: data.description },
+        defaultValues: { description },
     });
 
     const setDesc = handleSubmit(async ({ description }) => {
@@ -28,8 +26,7 @@ export const EditDescriptionButton: React.FC<EditProps> = ({ docPath, data }) =>
             description,
         });
 
-        data.description = description;
-        setEditing(false);
+        onEdit(description);
     });
 
     useEffect(() => {
@@ -37,25 +34,16 @@ export const EditDescriptionButton: React.FC<EditProps> = ({ docPath, data }) =>
     }, []);
 
     return (
-        <>
-            <button className="btn btn-small mt-2" onClick={() => setEditing(true)}>
-                Edit Description
-            </button>
-            {editing && (
-                <Popup onClose={() => setEditing(false)}>
-                    <form className="bg-white p-4 text-left" onSubmit={setDesc}>
-                        <MarkdownSupported />
-                        <textarea
-                            className="input min-h-[8rem] mb-2"
-                            placeholder="Description"
-                            {...register("description", {
-                                maxLength: { value: 10000, message: "Description too long" },
-                            })}
-                        />
-                        <FormStatus formState={formState} buttonText="Set description" />
-                    </form>
-                </Popup>
-            )}
-        </>
+        <form className="bg-white p-4" onSubmit={setDesc}>
+            <MarkdownSupported />
+            <textarea
+                className="input min-h-[8rem] mb-2"
+                placeholder="Description"
+                {...register("description", {
+                    maxLength: { value: 10000, message: "Description too long" },
+                })}
+            />
+            <FormStatus formState={formState} buttonText="Set description" />
+        </form>
     );
 };

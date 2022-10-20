@@ -4,10 +4,10 @@ import { query, collectionGroup, where } from "firebase/firestore";
 import { database, getDocByName, snapshotToJSON } from "lib/firebase";
 import { UserData } from "lib/types";
 import { GetServerSideProps } from "next/types";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { UserContext } from "lib/utils";
-import { CenterModal } from "components/Modals";
-import { EditDescriptionButton } from "components/EditDescription";
+import { CenterModal, Popup } from "components/Modals";
+import { EditDescription } from "components/EditDescription";
 import { MarkdownViewer } from "components/Markdown";
 
 interface Props {
@@ -26,6 +26,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async (ctx) => {
 
 export default function User({ user }: Props) {
     const userCtx = useContext(UserContext);
+    const [editing, setEditing] = useState(false);
 
     return (
         <>
@@ -34,9 +35,23 @@ export default function User({ user }: Props) {
                 <h1 className="text-xl mb-2">u/{user.name}</h1>
                 <MarkdownViewer text={user.description} />
                 {userCtx?.uid == user.id && (
-                    <EditDescriptionButton docPath="/threads" data={user} />
+                    <button className="btn btn-small mt-2" onClick={() => setEditing(true)}>
+                        Edit Description
+                    </button>
                 )}
             </CenterModal>
+            {editing && (
+                <Popup onClose={() => setEditing(false)}>
+                    <EditDescription
+                        docPath={`/users/${user.id}`}
+                        description={user.description}
+                        onEdit={(d) => {
+                            setEditing(false);
+                            user.description = d;
+                        }}
+                    />
+                </Popup>
+            )}
             <PostFeed
                 queryTemplate={query(
                     collectionGroup(database, "posts"),

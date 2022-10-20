@@ -2,7 +2,7 @@ import Link from "next/link";
 import { PostData } from "lib/types";
 import { VoteCounter } from "./VoteCounter";
 import { useItemOptions, UserContext } from "lib/utils";
-import { useContext} from "react";
+import { useContext } from "react";
 import { MarkdownViewer } from "./Markdown";
 import { format } from "timeago.js";
 import { useRouter } from "next/router";

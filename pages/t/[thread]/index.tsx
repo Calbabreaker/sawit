@@ -3,12 +3,13 @@ import { PostFeed } from "components/Feed";
 import { collection, doc, getDoc } from "firebase/firestore";
 import { database, snapshotToJSON } from "lib/firebase";
 import { ThreadData } from "lib/types";
-import Link from "next/link";
 import { GetServerSideProps } from "next/types";
-import { CenterModal } from "components/Modals";
-import { useContext } from "react";
+import { CenterModal, Popup } from "components/Modals";
+import { useContext, useState } from "react";
 import { UserContext } from "lib/utils";
-import { EditDescriptionButton } from "components/EditDescription";
+import { EditDescription } from "components/EditDescription";
+import { MarkdownViewer } from "components/Markdown";
+import Link from "next/link";
 
 export interface Props {
     thread: ThreadData;
@@ -26,20 +27,35 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ params }) 
 
 export default function Thread({ thread }: Props) {
     const userCtx = useContext(UserContext);
+    const [editing, setEditing] = useState(false);
 
     return (
         <>
             <MetaTags title={`t/${thread.id}`} description={thread.description} />
             <CenterModal>
                 <h1 className="text-xl mb-2">Welcome to t/{thread.id}!</h1>
-                <p>{thread.description}</p>
+                <MarkdownViewer text={thread.description} />
                 {userCtx?.uid == thread.ownerUID && (
-                    <EditDescriptionButton docPath="/threads" data={thread} />
+                    <button className="btn btn-small mt-2" onClick={() => setEditing(true)}>
+                        Edit Description
+                    </button>
                 )}
                 <Link href={`${thread.id}/create`}>
                     <button className="btn btn-primary mt-2">Create Post</button>
                 </Link>
             </CenterModal>
+            {editing && (
+                <Popup onClose={() => setEditing(false)}>
+                    <EditDescription
+                        docPath={`/threads/${thread.id}`}
+                        description={thread.description}
+                        onEdit={(d) => {
+                            setEditing(false);
+                            thread.description = d;
+                        }}
+                    />
+                </Popup>
+            )}
             <PostFeed queryTemplate={collection(database, `/threads/${thread.id}/posts`)} />
         </>
     );

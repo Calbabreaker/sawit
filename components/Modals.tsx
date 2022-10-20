@@ -48,7 +48,7 @@ interface CenterProps {
 export const CenterModal: React.FC<CenterProps> = ({ children }) => {
     return (
         <div className="flex justify-center">
-            <div className="bg-white p-4 rounded shadow mb-4 w-fit text-sm text-center flex flex-col">
+            <div className="bg-white p-4 rounded shadow mb-4 w-fit text-sm text-center flex flex-col max-w-xl">
                 {children}
             </div>
         </div>
