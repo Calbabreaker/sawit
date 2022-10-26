@@ -31,18 +31,18 @@ interface UseFeedHook<T> {
 
 function useFeed<T>(queryTemplate: Query, onHistoryPopState?: () => boolean): UseFeedHook<T> {
     const router = useRouter();
-    const [items, setItems] = useState([]);
+    const [items, setItems] = useState<T[]>([]);
     const [isEnd, setIsEnd] = useState(false);
-    const [sort, setSort] = useState<string>();
-    const loadingPosts = useRef(false);
+    const sort = useRef<string>();
+    const blockGetItems = useRef(false);
     const lastSnapshot = useRef<DocumentSnapshot>();
 
     async function getMore(startFresh = false) {
+        if (blockGetItems.current) return;
         if (startFresh) setIsEnd(false);
-        else if (loadingPosts.current || isEnd) return;
-        loadingPosts.current = true;
+        blockGetItems.current = true;
 
-        const constraints = [getSortQuery(sort), limit(LIMIT)];
+        const constraints = [getSortQuery(sort.current), limit(LIMIT)];
         if (!startFresh) {
             constraints.push(startAfter(lastSnapshot.current));
         }
@@ -50,14 +50,18 @@ function useFeed<T>(queryTemplate: Query, onHistoryPopState?: () => boolean): Us
         const snapshot = await getDocs(query(queryTemplate, ...constraints));
         lastSnapshot.current = snapshot.docs[snapshot.docs.length - 1];
 
-        const newItems = snapshot.docs.map(snapshotToJSON);
+        const newItems = snapshot.docs.map(snapshotToJSON) as T[];
         if (newItems.length < LIMIT) {
             setIsEnd(true);
+        } else {
+            // This makes it so that getMore blocks forever if reach end of items
+            blockGetItems.current = false;
         }
 
-        if (!startFresh) newItems.unshift(...items);
-        setItems(newItems);
-        loadingPosts.current = false;
+        setItems((oldItems) => {
+            if (!startFresh) newItems.unshift(...oldItems);
+            return newItems;
+        });
     }
 
     function onScroll() {
@@ -67,17 +71,18 @@ function useFeed<T>(queryTemplate: Query, onHistoryPopState?: () => boolean): Us
     }
 
     useEffect(() => {
-        window.addEventListener("scroll", onScroll);
-        return () => window.removeEventListener("scroll", onScroll);
-    }, [items]);
-
-    useEffect(() => {
         updateSort();
-    }, []);
+        window.addEventListener("scroll", onScroll);
+        window.addEventListener("popstate", onPopState);
+        // Disable nextjs routing if on same page
+        router.beforePopState((state) => state.as != router.asPath);
 
-    useEffect(() => {
-        getMore(true);
-    }, [sort]);
+        return () => {
+            window.removeEventListener("scroll", onScroll);
+            window.removeEventListener("popstate", onPopState);
+            router.beforePopState(undefined);
+        };
+    }, []);
 
     function onDelete(i: number) {
         const newItems = items.concat();
@@ -90,23 +95,15 @@ function useFeed<T>(queryTemplate: Query, onHistoryPopState?: () => boolean): Us
             newSort = new URLSearchParams(location.search).get("sort") ?? "most";
         }
 
-        const newUrl = `${location.pathname}?sort=${newSort}`;
-        if (pushState) history.pushState(history.state, undefined, newUrl);
-        setSort(newSort);
+        if (pushState) {
+            const newUrl = `${location.pathname}?sort=${newSort}`;
+            history.pushState(history.state, undefined, newUrl);
+        }
+
+        blockGetItems.current = false;
+        sort.current = newSort;
+        getMore(true);
     }
-
-    useEffect(() => {
-        router.beforePopState((state) => {
-            // Disable nextjs routing if on same page
-            return state.as == router.asPath ? false : true;
-        });
-
-        window.addEventListener("popstate", onPopState);
-        return () => {
-            window.removeEventListener("popstate", onPopState);
-            router.beforePopState(undefined);
-        };
-    }, []);
 
     function onPopState() {
         if (onHistoryPopState) {
@@ -116,7 +113,7 @@ function useFeed<T>(queryTemplate: Query, onHistoryPopState?: () => boolean): Us
         updateSort();
     }
 
-    return { updateSort, onDelete, items, sort, isEnd, getMore};
+    return { updateSort, onDelete, items, sort: sort.current, isEnd, getMore };
 }
 
 interface SortSelectProps {
@@ -165,7 +162,7 @@ export const PostFeed: React.FC<PostFeedProps> = ({ queryTemplate }) => {
         return postID != null;
     }
 
-    const { items, onDelete, sort, updateSort, isEnd} = useFeed<PostData>(
+    const { items, onDelete, sort, updateSort, isEnd } = useFeed<PostData>(
         queryTemplate,
         onPopState
     );
@@ -200,7 +197,7 @@ export const PostFeed: React.FC<PostFeedProps> = ({ queryTemplate }) => {
                             data={data}
                             onDelete={() => onDelete(i)}
                             setPreview={setPreviewPost}
-                            onEdit={(content) => data.content = content}
+                            onEdit={(content) => (data.content = content)}
                         />
                     </div>
                     {previewPostID == data.id && (
@@ -211,7 +208,7 @@ export const PostFeed: React.FC<PostFeedProps> = ({ queryTemplate }) => {
                                     onDelete(i);
                                     history.back();
                                 }}
-                                onEdit={(content) => data.content = content}
+                                onEdit={(content) => (data.content = content)}
                             />
                             <CommentFeed postID={data.id} thread={data.thread} />
                         </Popup>

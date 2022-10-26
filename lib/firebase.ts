@@ -68,8 +68,9 @@ export function getSortQuery(sort?: string): QueryConstraint {
             return orderBy("createdAt", "desc");
         case "least":
             return orderBy("upvotes");
-        // Sort is most upvoted or not valid
-        default:
+        case "most":
             return orderBy("upvotes", "desc");
+        default:
+            throw "Invalid sort";
     }
 }

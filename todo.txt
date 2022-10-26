@@ -1,3 +1,4 @@
+specific image post type
 full text search
 moderator actions
 replies to comments?
