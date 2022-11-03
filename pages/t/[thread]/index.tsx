@@ -29,13 +29,15 @@ export default function Thread({ thread }: Props) {
     const userCtx = useContext(UserContext);
     const [editing, setEditing] = useState(false);
 
+    thread.moderators = ["jisdf", "jsdif"];
+
     return (
         <>
             <MetaTags title={`t/${thread.id}`} description={thread.description} />
             <CenterModal>
                 <h1 className="text-xl mb-2">Welcome to t/{thread.id}!</h1>
                 <MarkdownViewer text={thread.description} />
-                {userCtx?.uid == thread.ownerUID && (
+                {userCtx?.username == thread.owner && (
                     <button className="btn btn-small mt-2" onClick={() => setEditing(true)}>
                         Edit Description
                     </button>

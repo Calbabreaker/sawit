@@ -18,10 +18,14 @@ export default async function (req: NextApiRequest, res: NextApiResponse) {
             await adminDatabase.runTransaction(async (transaction) => {
                 const doc = await transaction.get(threadRef);
                 if (doc.exists) throw "Already exists";
+
+                const userDoc = await transaction.get(adminDatabase.doc(`/users/${uid}`));
+                const username = userDoc.get("name");
+
                 transaction.set(threadRef, {
-                    ownerUID: uid,
+                    owner: username,
                     description,
-                    moderatorUIDS: [uid],
+                    moderators: [username],
                     createdAt: Timestamp.now(),
                 });
             });

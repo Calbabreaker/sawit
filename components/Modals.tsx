@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useEffect } from "react";
 
 interface PopupProps {
-    children: JSX.Element[] | JSX.Element;
+    children: React.ReactNode;
     onClose?: () => void;
 }
 
@@ -42,7 +42,7 @@ export const Popup: React.FC<PopupProps> = ({ children, onClose }) => {
 };
 
 interface CenterProps {
-    children: JSX.Element[];
+    children: React.ReactNode;
 }
 
 export const CenterModal: React.FC<CenterProps> = ({ children }) => {

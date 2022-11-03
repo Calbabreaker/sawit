@@ -120,7 +120,7 @@ export const VoteCounter: React.FC<Props> = ({ thread, postID, commentID }) => {
 
 interface VCHProps {
     upvotes: number;
-    children: JSX.Element[] | JSX.Element;
+    children: React.ReactNode;
 }
 
 export const VoteCtxHandler: React.FC<VCHProps> = ({ upvotes, children }) => {
