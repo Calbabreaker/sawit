@@ -1,7 +1,7 @@
 import { CommentData } from "lib/types";
 import { useItemOptions, UserContext } from "lib/utils";
 import Link from "next/link";
-import { useContext} from "react";
+import { useContext } from "react";
 import { format } from "timeago.js";
 import { CreateComment } from "./CreateComment";
 import { Popup } from "./Modals";
@@ -22,11 +22,6 @@ export const Comment: React.FC<Props> = ({ data, postID, thread, onDelete }) => 
         onDelete,
         `/api/comment?thread=${thread}&post=${postID}&comment=${id}`
     );
-
-    function onEdit(content: string) {
-        setEditing(false);
-        data.content = content;
-    }
 
     return (
         <div className="px-2 py-1 border mb-2">
@@ -63,7 +58,10 @@ export const Comment: React.FC<Props> = ({ data, postID, thread, onDelete }) => 
                     <div className="p-4">
                         <CreateComment
                             thread={thread}
-                            onSubmit={onEdit}
+                            onSubmit={({ content }) => {
+                                setEditing(false);
+                                data.content = content;
+                            }}
                             postID={postID}
                             editOpts={{
                                 values: { content },

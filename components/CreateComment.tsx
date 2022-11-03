@@ -5,7 +5,7 @@ import { useEffect } from "react";
 interface Props {
     thread: string;
     postID: string;
-    onSubmit: (content: string) => void;
+    onSubmit: (values: FormValues) => void;
     editOpts?: {
         values: FormValues;
         id: string;
@@ -34,9 +34,12 @@ export const CreateComment: React.FC<Props> = ({ thread, postID, onSubmit, editO
             body: new URLSearchParams(fields),
         });
 
-        if (!res.ok) throw console.error(await res.text());
+        if (!res.ok) {
+            alert("Failed to send request!");
+            throw await res.text();
+        }
 
-        onSubmit(fields.content);
+        onSubmit(fields);
     });
 
     useEffect(() => {

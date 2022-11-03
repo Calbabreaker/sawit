@@ -4,15 +4,16 @@ import { Timestamp } from "firebase-admin/firestore";
 
 export default async function (req: NextApiRequest, res: NextApiResponse) {
     try {
-        if (!req.query.name) throw "Invalid query";
-        const name = (req.query.name as string).toLowerCase();
+        let name = req.query.name as string;
+        if (!name || /[^\w-]/g.test(name)) throw "Invalid query";
+        name = name.toLowerCase();
 
         const uid = await verifyUser(req.cookies.userToken);
         const threadRef = adminDatabase.doc(`threads/${name}`);
 
         if (req.method == "PUT") {
             const { description } = req.body;
-            if (!description || description.length > 10000) throw "Invalid body";
+            if (description.length > 10000) throw "Invalid body";
 
             await adminDatabase.runTransaction(async (transaction) => {
                 const doc = await transaction.get(threadRef);

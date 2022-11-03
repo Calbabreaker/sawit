@@ -1,4 +1,3 @@
-import Router from "next/router";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { FormStatus } from "./FormStatus";
@@ -6,20 +5,20 @@ import { MarkdownSupported } from "./Markdown";
 
 interface Props {
     thread: string;
+    onSubmit: (values: CreatePostValues, id: string) => void;
     editOpts?: {
-        values: FormValues;
-        onSubmit: (content: string) => void;
+        values: CreatePostValues;
         id: string;
     };
 }
 
-interface FormValues extends Record<string, string> {
+export interface CreatePostValues extends Record<string, string> {
     title: string;
     content: string;
 }
 
-export const CreatePost: React.FC<Props> = ({ thread, editOpts }) => {
-    const { register, handleSubmit, formState, trigger } = useForm<FormValues>({
+export const CreatePost: React.FC<Props> = ({ thread, editOpts, onSubmit }) => {
+    const { register, handleSubmit, formState, trigger } = useForm<CreatePostValues>({
         mode: "onChange",
         defaultValues: editOpts?.values ?? { content: "" },
     });
@@ -37,10 +36,12 @@ export const CreatePost: React.FC<Props> = ({ thread, editOpts }) => {
         });
 
         const data = await res.text();
-        if (!res.ok) throw console.error(data);
+        if (!res.ok) {
+            alert("Failed to send request!");
+            throw data;
+        }
 
-        if (editOpts) editOpts.onSubmit(fields.content);
-        else Router.push(`/t/${thread}/post/${data}`);
+        onSubmit(fields, data);
     });
 
     useEffect(() => {

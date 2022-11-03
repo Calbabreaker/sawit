@@ -7,12 +7,12 @@ import { MarkdownViewer } from "./Markdown";
 import { format } from "timeago.js";
 import { useRouter } from "next/router";
 import { Popup } from "./Modals";
-import { CreatePost } from "./CreatePost";
+import { CreatePost, CreatePostValues } from "./CreatePost";
 
 interface Props {
     data: PostData;
     onDelete: () => void;
-    onEdit: (content: string) => void;
+    onEdit: (values: CreatePostValues) => void;
     setPreview?: (post: PostData) => void;
 }
 
@@ -96,12 +96,12 @@ export const Post: React.FC<Props> = ({ data, setPreview, onDelete, onEdit }) =>
                     <Popup onClose={() => setEditing(false)}>
                         <CreatePost
                             thread={thread}
+                            onSubmit={(values) => {
+                                setEditing(false);
+                                onEdit(values);
+                            }}
                             editOpts={{
                                 values: { content, title },
-                                onSubmit: (content) => {
-                                    setEditing(false);
-                                    onEdit(content);
-                                },
                                 id,
                             }}
                         />

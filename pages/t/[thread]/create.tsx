@@ -4,6 +4,7 @@ import { ThreadData } from "lib/types";
 import { database, snapshotToJSON } from "lib/firebase";
 import { MetaTags } from "components/MetaTags";
 import { makeAuthRedirectSSR } from "lib/utils";
+import Router from "next/router";
 
 interface Props {
     thread: ThreadData;
@@ -24,7 +25,10 @@ export default function Create({ thread }: Props) {
         <>
             <MetaTags title={`Create post in t/${thread.id}`} />
             <h1 className="text-2xl mb-4">Create a post in t/{thread.id}</h1>
-            <CreatePost thread={thread.id} />
+            <CreatePost
+                thread={thread.id}
+                onSubmit={(_, id) => Router.push(`/t/${thread.id}/post/${id}`)}
+            />
         </>
     );
 }

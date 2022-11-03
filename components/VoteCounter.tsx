@@ -81,9 +81,9 @@ export const VoteCounter: React.FC<Props> = ({ thread, postID, commentID }) => {
             setUpvotes(upvotes + inc);
             setVoteChange(newVoteChange);
         } else {
+            alert("Failed to vote!");
             const data = await res.text();
             console.error(data);
-            alert("Failed to vote!");
         }
 
         setLoading(false);

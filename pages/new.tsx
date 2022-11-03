@@ -36,8 +36,8 @@ export default function CreateThread({}) {
         });
 
         if (!res.ok) {
-            const data = await res.text();
-            throw console.error(data);
+            alert("Failed to send request!");
+            throw await res.text();
         }
 
         Router.push(`/t/${name}`);
@@ -58,6 +58,10 @@ export default function CreateThread({}) {
                     {...register("name", {
                         required: "Name required",
                         maxLength: { value: 16, message: "Name too long" },
+                        pattern: {
+                            value: /[\w-]/g,
+                            message: "Name can only contain letters, numbers, '-' and '_'",
+                        },
                     })}
                 />
                 <textarea

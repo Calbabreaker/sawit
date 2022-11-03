@@ -29,7 +29,10 @@ export default function PostPage({ post }: Props) {
                 <Post
                     data={post}
                     onDelete={() => Router.push("/")}
-                    onEdit={(content) => (post.content = content)}
+                    onEdit={({ title, content }) => {
+                        post.title = title;
+                        post.content = content;
+                    }}
                 />
             </VoteCtxHandler>
             <CommentFeed postID={post.id} thread={post.thread} />

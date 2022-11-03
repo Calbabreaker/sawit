@@ -19,6 +19,7 @@ import { CreateComment } from "./CreateComment";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpinner } from "@fortawesome/free-solid-svg-icons";
 import { VoteCtxHandler } from "./VoteCounter";
+import { CreatePostValues } from "./CreatePost";
 
 interface UseFeedHook<T> {
     updateSort: (sort: string, pushState: boolean) => void;
@@ -186,6 +187,11 @@ export const PostFeed: React.FC<PostFeedProps> = ({ queryTemplate }) => {
         setPreviewPostID(null);
     }
 
+    function onEdit(data: PostData, { title, content }: CreatePostValues) {
+        data.title = title;
+        data.content = content;
+    }
+
     // Uses react context to sync upvote info bewtween preview and snippet
     return (
         <div>
@@ -197,7 +203,7 @@ export const PostFeed: React.FC<PostFeedProps> = ({ queryTemplate }) => {
                             data={data}
                             onDelete={() => onDelete(i)}
                             setPreview={setPreviewPost}
-                            onEdit={(content) => (data.content = content)}
+                            onEdit={(values) => onEdit(data, values)}
                         />
                     </div>
                     {previewPostID == data.id && (
@@ -208,7 +214,7 @@ export const PostFeed: React.FC<PostFeedProps> = ({ queryTemplate }) => {
                                     onDelete(i);
                                     history.back();
                                 }}
-                                onEdit={(content) => (data.content = content)}
+                                onEdit={(values) => onEdit(data, values)}
                             />
                             <CommentFeed postID={data.id} thread={data.thread} />
                         </Popup>
