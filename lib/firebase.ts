@@ -57,8 +57,8 @@ export async function getDocByName(
 }
 
 export const LIMIT = 10;
-
-export const EMAIL_REGEX = /\S+@\w+\.\w+$/i;
+export const EMAIL_REGEX = /^\S+@\w+\.\w+$/;
+export const NAME_REGEX = /^[\w-]+$/;
 
 export function getSortQuery(sort?: string): QueryConstraint {
     switch (sort) {

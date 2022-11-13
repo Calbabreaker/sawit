@@ -1,6 +1,6 @@
 import { doc, setDoc, serverTimestamp } from "firebase/firestore";
 import { UserContext } from "lib/utils";
-import { database, getDocByName } from "lib/firebase";
+import { database, getDocByName, NAME_REGEX } from "lib/firebase";
 import { useContext, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { FormStatus } from "./FormStatus";
@@ -55,7 +55,7 @@ export const UsernameForm: React.FC<Props> = ({ setUsername }) => {
                         message: "Username must be less than 24 characters",
                     },
                     pattern: {
-                        value: /[\w-]/g,
+                        value: NAME_REGEX,
                         message: "Username can only contain letters, numbers, '-' and '_'",
                     },
                 })}

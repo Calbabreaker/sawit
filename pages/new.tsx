@@ -1,7 +1,7 @@
 import { FormStatus } from "components/FormStatus";
 import { MetaTags } from "components/MetaTags";
 import { doc, getDoc } from "firebase/firestore";
-import { database } from "lib/firebase";
+import { database, NAME_REGEX } from "lib/firebase";
 import { makeAuthRedirectSSR } from "lib/utils";
 import Router from "next/router";
 import { useEffect } from "react";
@@ -59,7 +59,7 @@ export default function CreateThread({}) {
                         required: "Name required",
                         maxLength: { value: 16, message: "Name too long" },
                         pattern: {
-                            value: /[\w-]/g,
+                            value: NAME_REGEX,
                             message: "Name can only contain letters, numbers, '-' and '_'",
                         },
                     })}
