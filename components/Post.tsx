@@ -8,7 +8,7 @@ import { format } from "timeago.js";
 import { useRouter } from "next/router";
 import { Popup } from "./Modals";
 import { CreatePost, CreatePostValues, validateUrlImage } from "./CreatePost";
-import { IMAGE_IDENTIFER, VALID_IMAGE_HOSTS } from "lib/firebase";
+import { IMAGE_IDENTIFER } from "lib/firebase";
 
 interface Props {
     data: PostData;
@@ -21,7 +21,7 @@ export const Post: React.FC<Props> = ({ data, setPreview, onDelete, onEdit }) =>
     let { content, title, username, thread, id } = data;
     const user = useContext(UserContext);
 
-    const { deleting, editing, setEditing, deletePost } = useItemOptions(
+    const { deleting, editing, setEditing, deleteItem } = useItemOptions(
         onDelete,
         `/api/post?thread=${thread}&post=${id}`
     );
@@ -59,7 +59,7 @@ export const Post: React.FC<Props> = ({ data, setPreview, onDelete, onEdit }) =>
                     <div>
                         <button
                             className="btn btn-small mr-2"
-                            onClick={deletePost}
+                            onClick={deleteItem}
                             disabled={deleting}
                         >
                             Delete

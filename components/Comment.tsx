@@ -18,7 +18,7 @@ export const Comment: React.FC<Props> = ({ data, postID, thread, onDelete }) => 
     const { id, username, content, createdAt } = data;
     const user = useContext(UserContext);
 
-    const { deleting, editing, setEditing, deletePost } = useItemOptions(
+    const { deleting, editing, setEditing, deleteItem } = useItemOptions(
         onDelete,
         `/api/comment?thread=${thread}&post=${postID}&comment=${id}`
     );
@@ -42,7 +42,7 @@ export const Comment: React.FC<Props> = ({ data, postID, thread, onDelete }) => 
                     <div>
                         <button
                             className="btn btn-small mr-2"
-                            onClick={deletePost}
+                            onClick={deleteItem}
                             disabled={deleting}
                         >
                             Delete

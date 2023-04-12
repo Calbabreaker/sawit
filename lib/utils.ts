@@ -20,7 +20,7 @@ interface ItemOptionsHook {
     deleting: boolean;
     editing: boolean;
     setEditing: (v: boolean) => void;
-    deletePost: (e: React.MouseEvent) => void;
+    deleteItem: (e: React.MouseEvent) => void;
 }
 
 export function useItemOptions(onDelete: () => void, itemDBPath: string): ItemOptionsHook {
@@ -42,7 +42,7 @@ export function useItemOptions(onDelete: () => void, itemDBPath: string): ItemOp
         }
     }
 
-    return { deleting, setEditing, editing, deletePost: deleteItem };
+    return { deleting, setEditing, editing, deleteItem };
 }
 
 // Redirect user if they are not logged in (if requireAuth is true) of logged in (if requireAuth is false) by setting http headers
