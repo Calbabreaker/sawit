@@ -13,6 +13,7 @@ export const MarkdownViewer: React.FC<Props> = ({ text, className }) => {
         <ReactMarkdown
             remarkPlugins={[remarkGfm]}
             className={`prose prose-sm prose-neutral prose-a:text-blue-600 max-w-full break-words ${className}`}
+            disallowedElements={["img"]}
             linkTarget="_blank"
         >
             {text}

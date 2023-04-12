@@ -12,8 +12,8 @@ export default function Home() {
                 <h1 className="text-xl mb-2">Welcome to Sawit!</h1>
                 <p>
                     Check out our main thread
-                    <Link href="/t/hello">
-                        <a className="m-1 link">t/hello</a>
+                    <Link href="/t/sawit">
+                        <a className="m-1 link">t/sawit</a>
                     </Link>
                     or
                     <Link href="/new">

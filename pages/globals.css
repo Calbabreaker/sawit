@@ -22,6 +22,10 @@
     .input {
         @apply rounded px-4 py-2 border border-black focus:ring w-full;
     }
+
+    .select {
+        @apply px-1 mx-2 bg-white rounded border border-gray-300 focus:border-blue-500;
+    }
 }
 
 body {

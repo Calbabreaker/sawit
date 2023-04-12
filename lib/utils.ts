@@ -27,7 +27,7 @@ export function useItemOptions(onDelete: () => void, itemDBPath: string): ItemOp
     const [deleting, setDeleting] = useState(false);
     const [editing, setEditing] = useState(false);
 
-    async function deletePost(e: React.MouseEvent) {
+    async function deleteItem(e: React.MouseEvent) {
         e.stopPropagation();
         if (confirm("Are you sure want to delete it?")) {
             setDeleting(true);
@@ -42,9 +42,10 @@ export function useItemOptions(onDelete: () => void, itemDBPath: string): ItemOp
         }
     }
 
-    return { deleting, setEditing, editing, deletePost };
+    return { deleting, setEditing, editing, deletePost: deleteItem };
 }
 
+// Redirect user if they are not logged in (if requireAuth is true) of logged in (if requireAuth is false) by setting http headers
 export function makeAuthRedirectSSR(
     requireAuth: boolean,
     onOK?: GetServerSideProps

@@ -127,7 +127,7 @@ const SortSelect: React.FC<SortSelectProps> = ({ sort, updateSort }) => {
         <div className="mb-2">
             <span>Sort by:</span>
             <select
-                className="mx-2 bg-white rounded border border-gray-300 focus:border-blue-500 focus:outline-none"
+                className="select"
                 onChange={(e) => updateSort(e.currentTarget.value, true)}
                 value={sort}
             >
@@ -144,7 +144,7 @@ export const LoadingStatus: React.FC<{ isEnd: boolean }> = ({ isEnd }) => {
     return (
         <div className="text-center">
             {isEnd ? (
-                <p className="text-gray-500">There is none left</p>
+                <p className="text-gray-500">You reached the end.</p>
             ) : (
                 <FontAwesomeIcon icon={faSpinner} className="mx-auto text-lg fa-spin" />
             )}

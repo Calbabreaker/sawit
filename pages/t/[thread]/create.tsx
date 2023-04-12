@@ -5,6 +5,7 @@ import { database, snapshotToJSON } from "lib/firebase";
 import { MetaTags } from "components/MetaTags";
 import { makeAuthRedirectSSR } from "lib/utils";
 import Router from "next/router";
+import { useState } from "react";
 
 interface Props {
     thread: ThreadData;
@@ -21,12 +22,26 @@ export const getServerSideProps = makeAuthRedirectSSR(true, async ({ params }) =
 });
 
 export default function Create({ thread }: Props) {
+    let [postType, setPostType] = useState("text");
+
     return (
         <>
             <MetaTags title={`Create post in t/${thread.id}`} />
-            <h1 className="text-2xl mb-4">Create a post in t/{thread.id}</h1>
+            <h1 className="text-2xl mb-4">
+                Create a
+                <select
+                    className="select"
+                    onChange={(e) => setPostType(e.currentTarget.value)}
+                    value={postType}
+                >
+                    <option value="text">text</option>
+                    <option value="image">image</option>
+                </select>
+                post in t/{thread.id}
+            </h1>
             <CreatePost
                 thread={thread.id}
+                isImage={postType == "image"}
                 onSubmit={(_, id) => Router.push(`/t/${thread.id}/post/${id}`)}
             />
         </>
