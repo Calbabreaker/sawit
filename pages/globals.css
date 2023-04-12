@@ -24,7 +24,7 @@
     }
 
     .select {
-        @apply px-1 mx-2 bg-white rounded border border-gray-300 focus:border-blue-500;
+        @apply px-2 mx-2 bg-white rounded border border-gray-300 focus:border-blue-500;
     }
 }
 

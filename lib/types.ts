@@ -15,7 +15,7 @@ export interface PostData extends DataType {
 
 export interface ThreadData extends DataType {
     description: string;
-    owner: string;
+    ownerUID: string;
     moderators: string[];
 }
 

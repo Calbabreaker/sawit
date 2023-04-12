@@ -22,7 +22,7 @@ export interface CreatePostValues extends Record<string, string> {
 }
 
 export const CreatePost: React.FC<Props> = ({ thread, editOpts, isImage = false, onSubmit }) => {
-    const { register, handleSubmit, formState, trigger } = useForm<CreatePostValues>({
+    const { register, handleSubmit, formState, trigger, unregister } = useForm<CreatePostValues>({
         mode: "onChange",
         defaultValues: editOpts?.values ?? { content: "" },
     });
@@ -54,6 +54,10 @@ export const CreatePost: React.FC<Props> = ({ thread, editOpts, isImage = false,
         trigger();
     }, []);
 
+    useEffect(() => {
+        unregister("content");
+    }, [isImage]);
+
     return (
         <form className="bg-white p-4 shadow rounded" onSubmit={createPost}>
             <input
@@ -69,7 +73,7 @@ export const CreatePost: React.FC<Props> = ({ thread, editOpts, isImage = false,
                     className="input mb-2"
                     placeholder="URL for the image (only i.imgur.com supported for now)"
                     {...register("content", {
-                        required: true,
+                        required: "URL required",
                         validate: validateUrlImage,
                         maxLength: { value: 500, message: "URL too long" },
                     })}
