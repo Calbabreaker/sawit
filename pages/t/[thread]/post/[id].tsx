@@ -1,9 +1,10 @@
+import { validateUrlImage } from "components/CreatePost";
 import { CommentFeed } from "components/Feed";
 import { MetaTags } from "components/MetaTags";
 import { Post } from "components/Post";
 import { VoteCtxHandler } from "components/VoteCounter";
 import { getDoc, doc } from "firebase/firestore";
-import { database, snapshotToJSON } from "lib/firebase";
+import { database, snapshotToJSON, VALID_IMAGE_HOSTS } from "lib/firebase";
 import { PostData } from "lib/types";
 import Router from "next/router";
 import { GetServerSideProps } from "next/types";
@@ -24,7 +25,11 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ params }) 
 export default function PostPage({ post }: Props) {
     return (
         <>
-            <MetaTags title={post.title} description={post.content} />
+            {post.type == "image" && validateUrlImage(post.content) == null ? (
+                <MetaTags title={post.title} image={post.content} />
+            ) : (
+                <MetaTags title={post.title} description={post.content} />
+            )}
             <VoteCtxHandler upvotes={post.upvotes}>
                 <Post
                     data={post}
