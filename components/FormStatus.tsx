@@ -29,7 +29,7 @@ export const FormStatus = <T extends FieldValues>({
             {isSubmitSuccessful && (
                 <FontAwesomeIcon icon={faCheck} className="text-blue-500 text-2xl ml-1 -mb-1" />
             )}
-            {!isValid && <ErrorText text={error?.message} />}
+            {!isValid && <ErrorText text={error?.message as string} />}
             {isSubmitted && isValid && !isDirty && !isSubmitSuccessful && (
                 <ErrorText text={"Failed to send request"} />
             )}

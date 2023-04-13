@@ -82,8 +82,8 @@ export default function Login() {
                 </form>
                 <div className="mt-2 text-gray-500">
                     Don't have an account?
-                    <Link href={{ pathname: `/signup`, query: router.query }}>
-                        <a className="link ml-2">Sign Up</a>
+                    <Link href={{ pathname: `/signup`, query: router.query }} className="link ml-2">
+                        Sign Up
                     </Link>
                 </div>
             </div>

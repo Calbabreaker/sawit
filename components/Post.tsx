@@ -106,22 +106,23 @@ export const TopPart: React.FC<TopPartProps> = ({ data }) => {
         <div className="text-gray-500 text-xs mb-1">
             {!router.query.thread && (
                 <span className="mr-1">
-                    <Link href={`/t/${thread}`}>
-                        <a
-                            className="hover:underline font-bold text-black mr-1"
-                            onClick={stopPropagation}
-                        >
-                            t/{thread}
-                        </a>
+                    <Link
+                        href={`/t/${thread}`}
+                        className="hover:underline font-bold text-black mr-1"
+                        onClick={stopPropagation}
+                    >
+                        t/{thread}
                     </Link>
                     •
                 </span>
             )}
             Posted by
-            <Link href={`/u/${username}`}>
-                <a className="hover:underline mx-1" onClick={stopPropagation}>
-                    {username}
-                </a>
+            <Link
+                href={`/u/${username}`}
+                className="hover:underline mx-1"
+                onClick={stopPropagation}
+            >
+                {username}
             </Link>
             {format(createdAt)}
         </div>

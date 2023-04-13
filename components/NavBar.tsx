@@ -24,7 +24,7 @@ export const NavBar: React.FC = () => {
         <nav className="bg-white shadow sticky top-0 w-full z-10">
             <div className="px-4 py-2 mx-auto flex justify-between">
                 <div className="flex">
-                    <Link href="/">
+                    <Link href="/" legacyBehavior>
                         <div className="cursor-pointer flex">
                             <div className="w-6 my-auto mr-2">
                                 <Logo />
@@ -50,16 +50,20 @@ export const NavBar: React.FC = () => {
                                 pathname: "/login",
                                 query: { return: router.query.return || router.asPath },
                             }}
+                            className="hover:underline"
                         >
-                            <a className="hover:underline">Login</a>
+                            Login
                         </Link>
                     )}
                 </div>
             </div>
             {dropDownVisible && userCtx && (
                 <div className="absolute w-32 right-0 z-10 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 text-gray-700 text-sm">
-                    <Link href={`/u/${userCtx.username}`}>
-                        <a className="hover:underline block px-4 py-2">My profile</a>
+                    <Link
+                        href={`/u/${userCtx.username}`}
+                        className="hover:underline block px-4 py-2"
+                    >
+                        My profile
                     </Link>
                     <button
                         className="hover:underline block px-4 py-2"

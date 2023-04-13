@@ -26,8 +26,8 @@ export const Comment: React.FC<Props> = ({ data, postID, thread, onDelete }) => 
     return (
         <div className="px-2 py-1 border mb-2">
             <div className="text-xs text-gray-500">
-                <Link href={`/u/${username}`}>
-                    <a className="mr-1 hover:underline">/u/{username}</a>
+                <Link href={`/u/${username}`} className="mr-1 hover:underline">
+                    /u/{username}
                 </Link>
                 {format(createdAt)}
             </div>

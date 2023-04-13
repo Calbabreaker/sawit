@@ -12,12 +12,12 @@ export default function Home() {
                 <h1 className="text-xl mb-2">Welcome to Sawit!</h1>
                 <p>
                     Check out our main thread
-                    <Link href="/t/sawit">
-                        <a className="m-1 link">t/sawit</a>
+                    <Link href="/t/sawit" className="m-1 link">
+                        t/sawit
                     </Link>
                     or
-                    <Link href="/new">
-                        <a className="ml-1 link">create a new one</a>
+                    <Link href="/new" className="ml-1 link">
+                        create a new one
                     </Link>
                     .
                 </p>

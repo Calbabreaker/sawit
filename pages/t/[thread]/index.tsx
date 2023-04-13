@@ -40,7 +40,7 @@ export default function Thread({ thread }: Props) {
                         Edit Description
                     </button>
                 )}
-                <Link href={`${thread.id}/create`}>
+                <Link href={`${thread.id}/create`} legacyBehavior>
                     <button className="btn btn-primary mt-2">Create Post</button>
                 </Link>
             </CenterModal>
