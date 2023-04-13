@@ -1,6 +1,7 @@
 import { NextApiRequest, NextApiResponse } from "next/types";
 import { verifyUser, adminDatabase } from "lib/firebase_admin";
 import { Timestamp } from "firebase-admin/firestore";
+import { POST_TYPES } from "lib/types";
 
 export default async function (req: NextApiRequest, res: NextApiResponse) {
     try {
@@ -13,8 +14,15 @@ export default async function (req: NextApiRequest, res: NextApiResponse) {
         const postRef = adminDatabase.doc(`${baseDBPath}/${post}`);
 
         if (req.method == "PUT") {
-            const { title, content } = req.body;
-            if (!title || title.length > 100 || content.length > 10000) throw "Invalid body";
+            const { title, content, type } = req.body;
+            if (
+                !title ||
+                title.length > 100 ||
+                content.length > 10000 ||
+                !POST_TYPES.includes(type)
+            ) {
+                throw "Invalid body";
+            }
 
             // If post provided update it else create a new one
             if (post) {
@@ -35,6 +43,7 @@ export default async function (req: NextApiRequest, res: NextApiResponse) {
                     uid,
                     createdAt: Timestamp.now(),
                     upvotes: 0,
+                    type,
                 });
 
                 res.status(200).end(doc.id);

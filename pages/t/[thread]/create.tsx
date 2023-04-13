@@ -1,6 +1,6 @@
 import { CreatePost } from "components/CreatePost";
 import { getDoc, doc } from "firebase/firestore";
-import { ThreadData } from "lib/types";
+import { PostType, ThreadData, POST_TYPES } from "lib/types";
 import { database, snapshotToJSON } from "lib/firebase";
 import { MetaTags } from "components/MetaTags";
 import { makeAuthRedirectSSR } from "lib/utils";
@@ -22,7 +22,7 @@ export const getServerSideProps = makeAuthRedirectSSR(true, async ({ params }) =
 });
 
 export default function Create({ thread }: Props) {
-    let [postType, setPostType] = useState("text");
+    let [postType, setPostType] = useState<PostType>("text");
 
     return (
         <>
@@ -31,17 +31,18 @@ export default function Create({ thread }: Props) {
                 Create a
                 <select
                     className="select"
-                    onChange={(e) => setPostType(e.currentTarget.value)}
+                    onChange={(e) => setPostType(e.currentTarget.value as PostType)}
                     value={postType}
                 >
-                    <option value="text">text</option>
-                    <option value="image">image</option>
+                    {POST_TYPES.map((type) => (
+                        <option value={type}>{type}</option>
+                    ))}
                 </select>
                 post in t/{thread.id}
             </h1>
             <CreatePost
                 thread={thread.id}
-                isImage={postType == "image"}
+                type={postType}
                 onSubmit={(_, id) => Router.push(`/t/${thread.id}/post/${id}`)}
             />
         </>

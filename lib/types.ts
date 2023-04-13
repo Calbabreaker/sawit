@@ -11,6 +11,7 @@ export interface PostData extends DataType {
     thread: string;
     uid: string;
     deleted: boolean;
+    type: PostType;
 }
 
 export interface ThreadData extends DataType {
@@ -32,3 +33,8 @@ export interface CommentData extends DataType {
     upvotes: number;
     replies: CommentData[];
 }
+
+export const POST_TYPES = ["text", "image"] as const;
+
+type PostTypeTuple = typeof POST_TYPES;
+export type PostType = PostTypeTuple[number];

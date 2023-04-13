@@ -1,4 +1,5 @@
-import { IMAGE_IDENTIFER, VALID_IMAGE_HOSTS } from "lib/firebase";
+import { VALID_IMAGE_HOSTS } from "lib/firebase";
+import { PostType } from "lib/types";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { FormStatus } from "./FormStatus";
@@ -8,7 +9,7 @@ interface Props {
     thread: string;
     onSubmit: (values: CreatePostValues, id: string) => void;
     // If the post is an image instead of content
-    isImage?: boolean;
+    type?: PostType;
     // If this component is for editing a post intead of creating one
     editOpts?: {
         values: CreatePostValues;
@@ -21,7 +22,7 @@ export interface CreatePostValues extends Record<string, string> {
     content: string;
 }
 
-export const CreatePost: React.FC<Props> = ({ thread, editOpts, isImage = false, onSubmit }) => {
+export const CreatePost: React.FC<Props> = ({ thread, editOpts, type = "text", onSubmit }) => {
     const { register, handleSubmit, formState, trigger, unregister } = useForm<CreatePostValues>({
         mode: "onChange",
         defaultValues: editOpts?.values ?? { content: "" },
@@ -31,14 +32,12 @@ export const CreatePost: React.FC<Props> = ({ thread, editOpts, isImage = false,
         let url = `/api/post?thread=${thread}`;
         if (editOpts) url += `&post=${editOpts.id}`;
 
-        if (isImage) fields.content = `image:${fields.content}`;
-
         const res = await fetch(url, {
             method: "PUT",
             headers: {
                 "Content-Type": "application/x-www-form-urlencoded",
             },
-            body: new URLSearchParams(fields),
+            body: new URLSearchParams({ ...fields, type }),
         });
 
         const data = await res.text();
@@ -56,7 +55,7 @@ export const CreatePost: React.FC<Props> = ({ thread, editOpts, isImage = false,
 
     useEffect(() => {
         unregister("content");
-    }, [isImage]);
+    }, [type]);
 
     return (
         <form className="bg-white p-4 shadow rounded" onSubmit={createPost}>
@@ -68,7 +67,7 @@ export const CreatePost: React.FC<Props> = ({ thread, editOpts, isImage = false,
                     maxLength: { value: 100, message: "Title too long" },
                 })}
             />
-            {isImage ? (
+            {type == "image" ? (
                 <input
                     className="input mb-2"
                     placeholder="URL for the image (only i.imgur.com supported for now)"

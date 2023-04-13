@@ -8,7 +8,6 @@ import { format } from "timeago.js";
 import { useRouter } from "next/router";
 import { Popup } from "./Modals";
 import { CreatePost, CreatePostValues, validateUrlImage } from "./CreatePost";
-import { IMAGE_IDENTIFER } from "lib/firebase";
 
 interface Props {
     data: PostData;
@@ -18,7 +17,7 @@ interface Props {
 }
 
 export const Post: React.FC<Props> = ({ data, setPreview, onDelete, onEdit }) => {
-    let { content, title, username, thread, id } = data;
+    let { content, title, username, thread, id, type } = data;
     const user = useContext(UserContext);
 
     const { deleting, editing, setEditing, deleteItem } = useItemOptions(
@@ -29,11 +28,6 @@ export const Post: React.FC<Props> = ({ data, setPreview, onDelete, onEdit }) =>
     const isPreview = setPreview != null;
     const hoverStyle = isPreview && !editing ? "hover:border-gray-400 cursor-pointer" : "";
     const contentStyle = `my-2 ${isPreview ? "fade overflow-hidden max-h-80" : ""}`;
-
-    const isImage = content.startsWith(IMAGE_IDENTIFER);
-    if (isImage) {
-        content = content.replace(IMAGE_IDENTIFER, "");
-    }
 
     return (
         <div
@@ -50,7 +44,7 @@ export const Post: React.FC<Props> = ({ data, setPreview, onDelete, onEdit }) =>
             <div className="p-2 w-full min-w-0">
                 <TopPart data={data} />
                 <h2 className="text-lg font-medium">{title}</h2>
-                {isImage && validateUrlImage(content) == null ? (
+                {type == "image" && validateUrlImage(content) == null ? (
                     <img src={content} className={contentStyle}></img>
                 ) : (
                     <MarkdownViewer text={content} className={contentStyle} />
@@ -83,7 +77,7 @@ export const Post: React.FC<Props> = ({ data, setPreview, onDelete, onEdit }) =>
                                 setEditing(false);
                                 onEdit(values);
                             }}
-                            isImage={isImage}
+                            type={type}
                             editOpts={{
                                 values: { content, title },
                                 id,
