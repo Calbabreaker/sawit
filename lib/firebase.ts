@@ -59,7 +59,7 @@ export async function getDocByName(
 export const LIMIT = 10;
 export const EMAIL_REGEX = /^\S+@\w+\.\w+$/;
 export const NAME_REGEX = /^[\w-]+$/;
-export const VALID_IMAGE_HOSTS = ["i.imgur.com"];
+export const IMAGE_HOSTS = ["i.imgur.com"];
 
 export function getSortQuery(sort?: string): QueryConstraint {
     switch (sort) {

@@ -4,7 +4,7 @@ import { collection, doc, getDoc } from "firebase/firestore";
 import { database, snapshotToJSON } from "lib/firebase";
 import { ThreadData } from "lib/types";
 import { GetServerSideProps } from "next/types";
-import { CenterModal, Popup } from "components/Modals";
+import { Modal, Popup } from "components/Modals";
 import { useContext, useState } from "react";
 import { UserContext } from "lib/utils";
 import { EditDescription } from "components/EditDescription";
@@ -32,7 +32,7 @@ export default function Thread({ thread }: Props) {
     return (
         <>
             <MetaTags title={`t/${thread.id}`} description={thread.description} />
-            <CenterModal>
+            <Modal>
                 <h1 className="text-xl mb-2">Welcome to t/{thread.id}!</h1>
                 <MarkdownViewer text={thread.description} />
                 {userCtx?.uid == thread.ownerUID && (
@@ -40,10 +40,10 @@ export default function Thread({ thread }: Props) {
                         Edit Description
                     </button>
                 )}
-                <Link href={`${thread.id}/create`} legacyBehavior>
-                    <button className="btn btn-primary mt-2">Create Post</button>
+                <Link href={`${thread.id}/create`} className="btn btn-primary mt-2">
+                    Create Post
                 </Link>
-            </CenterModal>
+            </Modal>
             {editing && (
                 <Popup onClose={() => setEditing(false)}>
                     <EditDescription

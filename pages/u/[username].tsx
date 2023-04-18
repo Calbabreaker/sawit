@@ -6,7 +6,7 @@ import { UserData } from "lib/types";
 import { GetServerSideProps } from "next/types";
 import { useContext, useState } from "react";
 import { UserContext } from "lib/utils";
-import { CenterModal, Popup } from "components/Modals";
+import { Modal, Popup } from "components/Modals";
 import { EditDescription } from "components/EditDescription";
 import { MarkdownViewer } from "components/Markdown";
 
@@ -31,7 +31,7 @@ export default function User({ user }: Props) {
     return (
         <>
             <MetaTags title={user.name} description={user.description} />
-            <CenterModal>
+            <Modal>
                 <h1 className="text-xl mb-2">u/{user.name}</h1>
                 <MarkdownViewer text={user.description} />
                 {userCtx?.uid == user.id && (
@@ -39,7 +39,7 @@ export default function User({ user }: Props) {
                         Edit Description
                     </button>
                 )}
-            </CenterModal>
+            </Modal>
             {editing && (
                 <Popup onClose={() => setEditing(false)}>
                     <EditDescription

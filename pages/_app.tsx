@@ -55,8 +55,10 @@ export default function MyApp({ Component, pageProps }: AppProps) {
                 </Popup>
             )}
             <NavBar />
-            <main className="p-4">
-                <Component {...pageProps} />
+            <main className="p-4 flex justify-center">
+                <div className="w-[46rem]">
+                    <Component {...pageProps} />
+                </div>
             </main>
         </UserContext.Provider>
     );

@@ -3,12 +3,12 @@ import { database } from "lib/firebase";
 import { MetaTags } from "components/MetaTags";
 import { PostFeed } from "components/Feed";
 import Link from "next/link";
-import { CenterModal } from "components/Modals";
+import { Modal } from "components/Modals";
 
 export default function Home() {
     return (
         <>
-            <CenterModal>
+            <Modal>
                 <h1 className="text-xl mb-2">Welcome to Sawit!</h1>
                 <p>
                     Check out our main thread
@@ -21,7 +21,7 @@ export default function Home() {
                     </Link>
                     .
                 </p>
-            </CenterModal>
+            </Modal>
             <MetaTags title="Sawit Home" description="Get the best posts on our site" />
             <PostFeed queryTemplate={collectionGroup(database, "posts")} />
         </>

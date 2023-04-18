@@ -192,11 +192,11 @@ export const PostFeed: React.FC<PostFeedProps> = ({ queryTemplate }) => {
         data.content = content;
     }
 
-    // Uses react context to sync upvote info bewtween preview and snippet
     return (
-        <div>
+        <div className="w-full">
             <SortSelect sort={sort} updateSort={updateSort} />
             {items.map((data, i) => (
+                // Uses react context to sync upvote info bewtween preview and snippet
                 <VoteCtxHandler key={data.id} upvotes={data.upvotes}>
                     <div className="mb-2">
                         <Post

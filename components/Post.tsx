@@ -27,7 +27,7 @@ export const Post: React.FC<Props> = ({ data, setPreview, onDelete, onEdit }) =>
 
     const isPreview = setPreview != null;
     const hoverStyle = isPreview && !editing ? "hover:border-gray-400 cursor-pointer" : "";
-    const contentStyle = `my-2 ${isPreview ? "fade overflow-hidden max-h-80" : ""}`;
+    const contentStyle = `my-2 ${isPreview ? "fade overflow-hidden max-h-96" : ""}`;
 
     return (
         <div
@@ -44,8 +44,9 @@ export const Post: React.FC<Props> = ({ data, setPreview, onDelete, onEdit }) =>
             <div className="p-2 w-full min-w-0">
                 <TopPart data={data} />
                 <h2 className="text-lg font-medium">{title}</h2>
+                {/* Post content */}
                 {type == "image" && validateUrlImage(content) == null ? (
-                    <img src={content} className={contentStyle}></img>
+                    <img src={content} className={contentStyle} />
                 ) : (
                     <MarkdownViewer text={content} className={contentStyle} />
                 )}

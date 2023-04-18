@@ -1,4 +1,4 @@
-import { VALID_IMAGE_HOSTS } from "lib/firebase";
+import { IMAGE_HOSTS } from "lib/firebase";
 import { PostType } from "lib/types";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
@@ -70,7 +70,7 @@ export const CreatePost: React.FC<Props> = ({ thread, editOpts, type = "text", o
             {type == "image" ? (
                 <input
                     className="input mb-2"
-                    placeholder="URL for the image (only i.imgur.com supported for now)"
+                    placeholder={`URL for the image (only ${IMAGE_HOSTS.join(",")} supported)`}
                     {...register("content", {
                         required: "URL required",
                         validate: validateUrlImage,
@@ -96,8 +96,8 @@ export const CreatePost: React.FC<Props> = ({ thread, editOpts, type = "text", o
 
 export function validateUrlImage(content: string): string {
     try {
-        if (!VALID_IMAGE_HOSTS.includes(new URL(content).hostname)) {
-            return `Can only use images on ${VALID_IMAGE_HOSTS.join(", ")}`;
+        if (!IMAGE_HOSTS.includes(new URL(content).hostname)) {
+            return `Can only use images on ${IMAGE_HOSTS.join(", ")}`;
         }
     } catch {
         return "Not a valid URL";

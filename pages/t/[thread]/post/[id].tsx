@@ -4,7 +4,7 @@ import { MetaTags } from "components/MetaTags";
 import { Post } from "components/Post";
 import { VoteCtxHandler } from "components/VoteCounter";
 import { getDoc, doc } from "firebase/firestore";
-import { database, snapshotToJSON, VALID_IMAGE_HOSTS } from "lib/firebase";
+import { database, snapshotToJSON, IMAGE_HOSTS } from "lib/firebase";
 import { PostData } from "lib/types";
 import Router from "next/router";
 import { GetServerSideProps } from "next/types";
