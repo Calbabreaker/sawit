@@ -35,7 +35,7 @@ export default function User({ user }: Props) {
                 <h1 className="text-xl mb-2">u/{user.name}</h1>
                 <MarkdownViewer text={user.description} />
                 {userCtx?.uid == user.id && (
-                    <button className="btn btn-small mt-2" onClick={() => setEditing(true)}>
+                    <button className="btn btn-small mt-2 w-36" onClick={() => setEditing(true)}>
                         Edit Description
                     </button>
                 )}

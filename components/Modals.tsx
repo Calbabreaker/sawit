@@ -47,7 +47,7 @@ interface CenterProps {
 
 export const Modal: React.FC<CenterProps> = ({ children }) => {
     return (
-        <div className="bg-white p-4 rounded shadow mb-4 text-sm text-center flex flex-col w-full">
+        <div className="bg-white p-4 rounded shadow mb-4 text-sm text-center flex flex-col w-full items-center">
             {children}
         </div>
     );

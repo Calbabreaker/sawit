@@ -36,11 +36,11 @@ export default function Thread({ thread }: Props) {
                 <h1 className="text-xl mb-2">Welcome to t/{thread.id}!</h1>
                 <MarkdownViewer text={thread.description} />
                 {userCtx?.uid == thread.ownerUID && (
-                    <button className="btn btn-small mt-2" onClick={() => setEditing(true)}>
+                    <button className="btn btn-small mt-2 w-36" onClick={() => setEditing(true)}>
                         Edit Description
                     </button>
                 )}
-                <Link href={`${thread.id}/create`} className="btn btn-primary mt-2">
+                <Link href={`${thread.id}/create`} className="btn btn-primary mt-2 w-36">
                     Create Post
                 </Link>
             </Modal>
