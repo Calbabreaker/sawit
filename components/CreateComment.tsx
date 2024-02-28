@@ -67,7 +67,7 @@ export const CreateComment: React.FC<Props> = ({ thread, postID, onSubmit, editO
             />
             <FormStatus
                 formState={formState}
-                buttonText={isEditing ? "Edit Post" : "Create Post"}
+                buttonText={isEditing ? "Edit Comment" : "Create Comment"}
             />
         </form>
     );
