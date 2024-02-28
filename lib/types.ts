@@ -36,5 +36,4 @@ export interface CommentData extends DataType {
 
 export const POST_TYPES = ["text", "image"] as const;
 
-type PostTypeTuple = typeof POST_TYPES;
-export type PostType = PostTypeTuple[number];
+export type PostType = (typeof POST_TYPES)[number];

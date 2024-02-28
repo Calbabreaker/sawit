@@ -17,6 +17,7 @@ interface FormValues extends Record<string, string> {
 }
 
 export const CreateComment: React.FC<Props> = ({ thread, postID, onSubmit, editOpts }) => {
+    const isEditing = editOpts != null;
     const { register, handleSubmit, formState, trigger, reset } = useForm<FormValues>({
         mode: "onChange",
         defaultValues: editOpts?.values,
@@ -24,7 +25,9 @@ export const CreateComment: React.FC<Props> = ({ thread, postID, onSubmit, editO
 
     const createComment = handleSubmit(async (fields) => {
         let url = `/api/comment?thread=${thread}&post=${postID}`;
-        if (editOpts) url += `&comment=${editOpts.id}`;
+        if (isEditing) {
+            url += `&comment=${editOpts.id}`;
+        }
 
         const res = await fetch(url, {
             method: "PUT",
@@ -62,7 +65,10 @@ export const CreateComment: React.FC<Props> = ({ thread, postID, onSubmit, editO
                     maxLength: { value: 1000, message: "Content too long" },
                 })}
             />
-            <FormStatus formState={formState} buttonText="Submit Comment" />
+            <FormStatus
+                formState={formState}
+                buttonText={isEditing ? "Edit Post" : "Create Post"}
+            />
         </form>
     );
 };

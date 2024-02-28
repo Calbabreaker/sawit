@@ -1,16 +1,22 @@
-import { NavBar } from "components/NavBar";
 import "./globals.css";
-import { IUserContext, UserContext } from "lib/utils";
-import { onIdTokenChanged } from "firebase/auth";
-import { destroyCookie, setCookie } from "nookies";
-import { useEffect, useState } from "react";
-import { auth, database } from "lib/firebase";
-import type { AppProps } from "next/app";
-import { Popup } from "components/Modals";
-import { UsernameForm } from "components/UsernameForm";
-import { doc, getDoc } from "firebase/firestore";
 import "@fortawesome/fontawesome-svg-core/styles.css";
 import Head from "next/head";
+import Router from "next/router";
+import nProgress from "nprogress";
+import type { AppProps } from "next/app";
+import { IUserContext, UserContext } from "lib/utils";
+import { NavBar } from "components/NavBar";
+import { Popup } from "components/Modals";
+import { UsernameForm } from "components/UsernameForm";
+import { auth, database } from "lib/firebase";
+import { destroyCookie, setCookie } from "nookies";
+import { doc, getDoc } from "firebase/firestore";
+import { onIdTokenChanged } from "firebase/auth";
+import { useEffect, useState } from "react";
+
+Router.events.on("routeChangeStart", nProgress.start);
+Router.events.on("routeChangeError", nProgress.done);
+Router.events.on("routeChangeComplete", nProgress.done);
 
 // Prevent fontawesome from adding its CSS since we did it manually above:
 import { config } from "@fortawesome/fontawesome-svg-core";

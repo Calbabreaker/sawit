@@ -22,7 +22,7 @@ export const FormStatus = <T extends FieldValues>({
             <button
                 type="submit"
                 disabled={!isValid || isSubmitting || isSubmitSuccessful}
-                className={`btn btn-primary mr-2 ${buttonClass}`}
+                className={`btn btn-primary mr-2 ${buttonClass} inline-block`}
             >
                 {buttonText}
             </button>
@@ -47,8 +47,8 @@ interface PropsText {
 export const ErrorText: React.FC<PropsText> = ({ text }) => {
     if (text) {
         return (
-            <div role="alert" className="inline-block text-red-500 mr-2">
-                <FontAwesomeIcon icon={faExclamation} className="text-2xl mr-1 -mb-1" />
+            <div role="alert" className="text-red-500 mr-2 inline-block translate-y-1">
+                <FontAwesomeIcon icon={faExclamation} className="text-2xl mx-2" />
                 {text}
             </div>
         );

@@ -22,7 +22,7 @@ export const Post: React.FC<Props> = ({ data, setPreview, onDelete, onEdit }) =>
 
     const { deleting, editing, setEditing, deleteItem } = useItemOptions(
         onDelete,
-        `/api/post?thread=${thread}&post=${id}`
+        `/api/post?thread=${thread}&post=${id}`,
     );
 
     const isPreview = setPreview != null;

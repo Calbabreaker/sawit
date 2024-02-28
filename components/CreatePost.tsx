@@ -23,6 +23,7 @@ export interface CreatePostValues extends Record<string, string> {
 }
 
 export const CreatePost: React.FC<Props> = ({ thread, editOpts, type = "text", onSubmit }) => {
+    const isEditing = editOpts != null;
     const { register, handleSubmit, formState, trigger, unregister } = useForm<CreatePostValues>({
         mode: "onChange",
         defaultValues: editOpts?.values ?? { content: "" },
@@ -30,7 +31,9 @@ export const CreatePost: React.FC<Props> = ({ thread, editOpts, type = "text", o
 
     const createPost = handleSubmit(async (fields) => {
         let url = `/api/post?thread=${thread}`;
-        if (editOpts) url += `&post=${editOpts.id}`;
+        if (isEditing) {
+            url += `&post=${editOpts.id}`;
+        }
 
         const res = await fetch(url, {
             method: "PUT",
@@ -89,7 +92,11 @@ export const CreatePost: React.FC<Props> = ({ thread, editOpts, type = "text", o
                     <MarkdownSupported />
                 </>
             )}
-            <FormStatus formState={formState} buttonText="Submit Post" buttonClass="mt-2" />
+            <FormStatus
+                formState={formState}
+                buttonText={isEditing ? "Edit Post" : "Create Post"}
+                buttonClass="mt-2"
+            />
         </form>
     );
 };
